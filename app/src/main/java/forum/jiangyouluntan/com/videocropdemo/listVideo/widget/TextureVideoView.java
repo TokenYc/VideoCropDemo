@@ -339,7 +339,7 @@ public class TextureVideoView extends ScalableTextureView
 
     public void seekTo(int msec){
         if (isPlaying()){
-            mMediaPlayer.seekTo(100000);
+            mMediaPlayer.seekTo(msec);
         }
     }
 

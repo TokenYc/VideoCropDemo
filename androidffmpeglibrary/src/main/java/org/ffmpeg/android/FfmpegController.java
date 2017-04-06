@@ -270,6 +270,13 @@ public class FfmpegController {
         execFFMPEG(cmd, sc);
     }
 
+    /**
+     * ffmpeg -i 1.mp4 -ss 00:00:03 -f image2 -s 240x240  bsdb.jpg
+     * @param file_path1
+     * @param file_path2
+     * @param sc
+     * @throws Exception
+     */
     public void getVideoImage(String file_path1, String file_path2, ShellCallback sc) throws Exception {
         ArrayList<String> cmd = new ArrayList<String>();
         cmd.add(mFfmpegBin);
@@ -285,8 +292,8 @@ public class FfmpegController {
 //        cmd.add("0.001");
 //        cmd.add("-s");
 //        cmd.add("352x240");
-        cmd.add("-vframes");
-        cmd.add("1");
+//        cmd.add("-vframes");
+//        cmd.add("1");
         cmd.add(file_path2);
 
 //        cmd.add("-acodec");

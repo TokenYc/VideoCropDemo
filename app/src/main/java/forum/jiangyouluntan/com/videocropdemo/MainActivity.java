@@ -13,21 +13,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import org.ffmpeg.android.FfmpegController;
 import org.ffmpeg.android.ShellUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView;
 
@@ -39,14 +36,16 @@ public class MainActivity extends AppCompatActivity {
     private TextureVideoView videoView;
     private RecyclerView recyclerView;
     private MyAdapter adapter;
-    private int currentTime=5*1000*1000;
+    private LinearLayoutManager linearLayoutManager;
+    private Bitmap bitmap;
     private MediaMetadataRetriever mmr = new MediaMetadataRetriever();
     private Executor executor;
-    Callable<Bitmap> callable=new Callable<Bitmap>() {
+
+    Callable<Bitmap> callable = new Callable<Bitmap>() {
         @Override
         public Bitmap call() throws Exception {
-            long currentTime=System.currentTimeMillis();
-            Bitmap tempBitmap=mmr.getFrameAtTime(currentTime);
+            long currentTime = System.currentTimeMillis();
+            Bitmap tempBitmap = mmr.getFrameAtTime(currentTime);
             Log.d("video", "getFrame use time====>" + (System.currentTimeMillis() - currentTime));
             Log.d("video", "tempBitmap width====>" + tempBitmap.getWidth() + "tempBitmap height====>" + tempBitmap.getHeight());
             Matrix matrix = new Matrix();
@@ -67,11 +66,33 @@ public class MainActivity extends AppCompatActivity {
         mmr.setDataSource(FILE_PATH);
         executor = Executors.newFixedThreadPool(4);
         initVideoSize();
-        executor.execute(futureTask);
-        adapter=new MyAdapter();
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
+//        executor.execute(futureTask);
+        adapter = new MyAdapter();
+        initRecyclerView();
+
         ffmpegTest();
+    }
+
+    private void initRecyclerView() {
+        recyclerView.setAdapter(adapter);
+        linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    int currentPosition=linearLayoutManager.findFirstVisibleItemPosition();
+                    Log.d("position", "currentPosition=====>" + currentPosition);
+                    videoView.seekTo(currentPosition*1000);
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
     }
 
     private void ffmpegTest() {
@@ -106,8 +127,8 @@ public class MainActivity extends AppCompatActivity {
         width = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
         height = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
 
-        long currentTime=System.currentTimeMillis();
-        Bitmap tempBitmap = mmr.getFrameAtTime(1*1000*1000);
+        long currentTime = System.currentTimeMillis();
+        bitmap = mmr.getFrameAtTime();
         Log.d("video", "getFrame use time====>" + (System.currentTimeMillis() - currentTime));
 
         Log.d("video", "duration====>" + duration + "width====>" + width + "height======>" + height);
@@ -119,67 +140,68 @@ public class MainActivity extends AppCompatActivity {
         videoView.start();
     }
 
-    public void seek(View view){
-        videoView.seekTo(20*1000);
+    public void seek(View view) {
+        videoView.seekTo(20 * 1000);
     }
 
-    class MyAdapter extends RecyclerView.Adapter{
+    class MyAdapter extends RecyclerView.Adapter {
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new MyViewHolder(LayoutInflater.from(MainActivity.this).inflate(R.layout.item,parent,false));
+            return new MyViewHolder(LayoutInflater.from(MainActivity.this).inflate(R.layout.item, parent, false));
         }
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
-            final MyViewHolder viewHolder= (MyViewHolder) holder;
-//            try {
-                currentTime=position*1000*1000;
-//                FutureTask<Bitmap> futureTask = new FutureTask<Bitmap>(callable);
-////                if (position>0)
-//                executor.execute(futureTask);
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    long currentTime=System.currentTimeMillis();
-//                    Bitmap tempBitmap = mmr.getFrameAtTime(position*1000*1000);
-//                    Log.d("video", "getFrame use time====>" + (System.currentTimeMillis() - currentTime));
-//                    Matrix matrix = new Matrix();
-//                    matrix.postScale(0.1f, 0.1f);
-//                    tempBitmap = Bitmap.createBitmap(tempBitmap, 0, 0, tempBitmap.getWidth(), tempBitmap.getHeight(), matrix, true);
-//                    final Bitmap finalTempBitmap = tempBitmap;
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            viewHolder.imvCrop.setImageBitmap(finalTempBitmap);
-//                        }
-//                    });
-//                }
-//            }).start();
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-//                        long currentTime=System.currentTimeMillis();
-                        Bitmap tempBitmap = mmr.getFrameAtTime(position*1000*1000);
-//                        Log.d("video", "getFrame use time====>" + (System.currentTimeMillis() - currentTime));
-                        Matrix matrix = new Matrix();
-                        matrix.postScale(0.1f, 0.1f);
-                        tempBitmap = Bitmap.createBitmap(tempBitmap, 0, 0, tempBitmap.getWidth(), tempBitmap.getHeight(), matrix, true);
-                        final Bitmap finalTempBitmap = tempBitmap;
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                viewHolder.imvCrop.setImageBitmap(finalTempBitmap);
-                            }
-                        });
-                    }
-                });
-//                viewHolder.imvCrop.setImageBitmap(futureTask.get());
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            } catch (ExecutionException e) {
-//                e.printStackTrace();
-//            }
+            final MyViewHolder viewHolder = (MyViewHolder) holder;
+            viewHolder.imvCrop.setImageBitmap(bitmap);
+////            try {
+//                currentTime=position*1000*1000;
+////                FutureTask<Bitmap> futureTask = new FutureTask<Bitmap>(callable);
+//////                if (position>0)
+////                executor.execute(futureTask);
+////            new Thread(new Runnable() {
+////                @Override
+////                public void run() {
+////                    long currentTime=System.currentTimeMillis();
+////                    Bitmap tempBitmap = mmr.getFrameAtTime(position*1000*1000);
+////                    Log.d("video", "getFrame use time====>" + (System.currentTimeMillis() - currentTime));
+////                    Matrix matrix = new Matrix();
+////                    matrix.postScale(0.1f, 0.1f);
+////                    tempBitmap = Bitmap.createBitmap(tempBitmap, 0, 0, tempBitmap.getWidth(), tempBitmap.getHeight(), matrix, true);
+////                    final Bitmap finalTempBitmap = tempBitmap;
+////                    runOnUiThread(new Runnable() {
+////                        @Override
+////                        public void run() {
+////                            viewHolder.imvCrop.setImageBitmap(finalTempBitmap);
+////                        }
+////                    });
+////                }
+////            }).start();
+//                executor.execute(new Runnable() {
+//                    @Override
+//                    public void run() {
+////                        long currentTime=System.currentTimeMillis();
+//                        Bitmap tempBitmap = mmr.getFrameAtTime(position*1000*1000);
+////                        Log.d("video", "getFrame use time====>" + (System.currentTimeMillis() - currentTime));
+//                        Matrix matrix = new Matrix();
+//                        matrix.postScale(0.1f, 0.1f);
+//                        tempBitmap = Bitmap.createBitmap(tempBitmap, 0, 0, tempBitmap.getWidth(), tempBitmap.getHeight(), matrix, true);
+//                        final Bitmap finalTempBitmap = tempBitmap;
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                viewHolder.imvCrop.setImageBitmap(finalTempBitmap);
+//                            }
+//                        });
+//                    }
+//                });
+////                viewHolder.imvCrop.setImageBitmap(futureTask.get());
+////            } catch (InterruptedException e) {
+////                e.printStackTrace();
+////            } catch (ExecutionException e) {
+////                e.printStackTrace();
+////            }
         }
 
         @Override
