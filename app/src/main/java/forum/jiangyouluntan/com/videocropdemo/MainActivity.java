@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     int currentPosition=linearLayoutManager.findFirstVisibleItemPosition();
-                    Log.d("position", "currentPosition=====>" + currentPosition);
+                    Log.d("position", "currentPosition=====>" + recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(500,50)));
                     videoView.seekTo(currentPosition*1000);
                 }
             }
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
         lp.width = Integer.parseInt(width) / 2;
         lp.height = Integer.parseInt(height) / 2;
         videoView.setVideoPath(FILE_PATH);
-        videoView.start();
+//        videoView.start();
     }
 
     public void seek(View view) {

@@ -13,7 +13,8 @@
     <forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView
         android:id="@+id/videoView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        />
 
     <Button
         android:layout_width="wrap_content"
@@ -22,12 +23,17 @@
         android:onClick="seek"
         />
 
-
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="42dp"
         android:layout_alignParentBottom="true"
         />
+    
+    <forum.jiangyouluntan.com.videocropdemo.TwoSideSeekBar.TwoSideSeekBar
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:layout_alignParentBottom="true"
+        />
+
 </RelativeLayout>
