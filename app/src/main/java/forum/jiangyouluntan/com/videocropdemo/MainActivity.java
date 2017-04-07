@@ -1,7 +1,9 @@
 package forum.jiangyouluntan.com.videocropdemo;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.media.MediaMetadataRetriever;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +28,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
+import forum.jiangyouluntan.com.videocropdemo.TwoSideSeekBar.TwoSideSeekBar;
 import forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,11 +38,15 @@ public class MainActivity extends AppCompatActivity {
 
     private TextureVideoView videoView;
     private RecyclerView recyclerView;
+    private TwoSideSeekBar seekBar;
+
     private MyAdapter adapter;
     private LinearLayoutManager linearLayoutManager;
     private Bitmap bitmap;
     private MediaMetadataRetriever mmr = new MediaMetadataRetriever();
     private Executor executor;
+    private float x;
+    private float y=0;
 
     Callable<Bitmap> callable = new Callable<Bitmap>() {
         @Override
@@ -63,15 +70,43 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         videoView = (TextureVideoView) findViewById(R.id.videoView);
+        seekBar = (TwoSideSeekBar) findViewById(R.id.seekBar);
+
         mmr.setDataSource(FILE_PATH);
         executor = Executors.newFixedThreadPool(4);
         initVideoSize();
 //        executor.execute(futureTask);
         adapter = new MyAdapter();
         initRecyclerView();
+        x=dp2px(this, 30);
+        seekBar.setOnVideoStateChangeListener(new TwoSideSeekBar.OnVideoStateChangeListener() {
+            @Override
+            public void onStart(float x, float y) {
+                int position=recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(x,y));
+                int currentTime=position-1;
+                Log.d("position", "currentPosition=====>" + position);
+                videoView.resume();
+                videoView.seekTo(currentTime*1000);
+            }
 
+            @Override
+            public void onPause() {
+                if(videoView.isPlaying()) {
+                    videoView.pause();
+                }
+            }
+
+            @Override
+            public void onEnd() {
+                int position=recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(x,y));
+                int currentTime=position-1;
+                Log.d("position", "currentPosition=====>" + currentTime);
+                videoView.seekTo(currentTime);
+            }
+        });
         ffmpegTest();
     }
+
 
     private void initRecyclerView() {
         recyclerView.setAdapter(adapter);
@@ -82,9 +117,11 @@ public class MainActivity extends AppCompatActivity {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    int currentPosition=linearLayoutManager.findFirstVisibleItemPosition();
-                    Log.d("position", "currentPosition=====>" + recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(500,50)));
-                    videoView.seekTo(currentPosition*1000);
+                    int currentPosition=recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(x,y));
+                    int currentTime=currentPosition-1;
+                    Log.d("position", "currentPosition=====>" + recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(x,y)));
+                    videoView.seekTo(currentTime*1000);
+                    seekBar.resetIndicatorAnimator();
                 }
             }
 
@@ -137,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         lp.width = Integer.parseInt(width) / 2;
         lp.height = Integer.parseInt(height) / 2;
         videoView.setVideoPath(FILE_PATH);
-//        videoView.start();
+        videoView.start();
     }
 
     public void seek(View view) {
@@ -154,7 +191,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
             final MyViewHolder viewHolder = (MyViewHolder) holder;
-            viewHolder.imvCrop.setImageBitmap(bitmap);
+            viewHolder.imvCrop.setLayoutParams(new LinearLayout.LayoutParams(seekBar.getSingleWidth(), seekBar.getSingleHeight()));
+            if (position==0) {
+                viewHolder.imvCrop.setBackgroundColor(Color.BLACK);
+                viewHolder.imvCrop.setImageBitmap(null);
+            }else{
+                viewHolder.imvCrop.setImageBitmap(bitmap);
+            }
 ////            try {
 //                currentTime=position*1000*1000;
 ////                FutureTask<Bitmap> futureTask = new FutureTask<Bitmap>(callable);
@@ -226,5 +269,10 @@ public class MainActivity extends AppCompatActivity {
         options.inSampleSize = inSampleSize;
         options.inPreferredConfig = Bitmap.Config.ARGB_4444;
         return options;
+    }
+
+    private int dp2px(Context context, int dpValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
     }
 }

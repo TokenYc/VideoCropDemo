@@ -337,10 +337,15 @@ public class TextureVideoView extends ScalableTextureView
         return isInPlaybackState() && isPlaying;
     }
 
-    public void seekTo(int msec){
-        if (isPlaying()){
-            mMediaPlayer.seekTo(msec);
-        }
+    public void seekTo(final int msec){
+        mVideoHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mMediaPlayer!=null) {
+                    mMediaPlayer.seekTo(msec);
+                }
+            }
+        },200);
     }
 
     public void mute() {
