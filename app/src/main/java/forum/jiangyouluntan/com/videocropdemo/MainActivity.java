@@ -45,8 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap bitmap;
     private MediaMetadataRetriever mmr = new MediaMetadataRetriever();
     private Executor executor;
-    private float x;
-    private float y=0;
+    private float mCurrentX;
+    private float mCurrentY =0;
 
     Callable<Bitmap> callable = new Callable<Bitmap>() {
         @Override
@@ -78,12 +78,14 @@ public class MainActivity extends AppCompatActivity {
 //        executor.execute(futureTask);
         adapter = new MyAdapter();
         initRecyclerView();
-        x=dp2px(this, 30);
+        mCurrentX =dp2px(this, 30);
         seekBar.setOnVideoStateChangeListener(new TwoSideSeekBar.OnVideoStateChangeListener() {
             @Override
             public void onStart(float x, float y) {
                 int position=recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(x,y));
                 int currentTime=position-1;
+                mCurrentX=x;
+                mCurrentY=y;
                 Log.d("position", "currentPosition=====>" + position);
                 videoView.resume();
                 videoView.seekTo(currentTime*1000);
@@ -98,10 +100,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onEnd() {
-                int position=recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(x,y));
+                int position=recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(mCurrentX, mCurrentY));
                 int currentTime=position-1;
                 Log.d("position", "currentPosition=====>" + currentTime);
-                videoView.seekTo(currentTime);
+                videoView.seekTo(currentTime*1000);
             }
         });
         ffmpegTest();
@@ -117,9 +119,9 @@ public class MainActivity extends AppCompatActivity {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    int currentPosition=recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(x,y));
+                    int currentPosition=recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(mCurrentX, mCurrentY));
                     int currentTime=currentPosition-1;
-                    Log.d("position", "currentPosition=====>" + recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(x,y)));
+                    Log.d("position", "currentPosition=====>" + recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(mCurrentX, mCurrentY)));
                     videoView.seekTo(currentTime*1000);
                     seekBar.resetIndicatorAnimator();
                 }
