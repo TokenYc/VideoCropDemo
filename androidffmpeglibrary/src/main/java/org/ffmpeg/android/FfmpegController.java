@@ -287,8 +287,8 @@ public class FfmpegController {
         cmd.add(file_path1);
 //        cmd.add("-f");
 //        cmd.add("image2");
-//        cmd.add("-ss");
-//        cmd.add("08.010");
+        cmd.add("-ss");
+        cmd.add("08.010");
 //        cmd.add("-t");
 //        cmd.add("0.001");
 //        cmd.add("-s");

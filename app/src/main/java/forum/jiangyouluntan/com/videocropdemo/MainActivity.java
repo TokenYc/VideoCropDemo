@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String FILE_PATH = "/storage/emulated/0/Movies/fffff.mp4";
     private static final String TARGET_FILE_PATH = "/storage/emulated/0/Movies/cc.mp4";
-    private static final String FILE_PATH_2 = "aa.jpg";
+    private static final String FILE_PATH_2 = "/storage/emulated/0/Movies/aa.jpg";
 
     private TextureVideoView videoView;
     private RecyclerView recyclerView;
