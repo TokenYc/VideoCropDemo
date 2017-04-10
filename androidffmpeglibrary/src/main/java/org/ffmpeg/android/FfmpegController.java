@@ -271,7 +271,7 @@ public class FfmpegController {
     }
 
     /**
-     * ffmpeg -i 1.mp4 -ss 00:00:03 -f image2 -s 240x240  bsdb.jpg
+     * ffmpeg -i 1.mp4 -ss 00:00:03 -vframes 1 -f image2 -s 240x240  bsdb.jpg
      *
      * @param file_path1
      * @param file_path2
@@ -281,20 +281,25 @@ public class FfmpegController {
     public void getVideoImage(String file_path1, String file_path2, ShellCallback sc) throws Exception {
         ArrayList<String> cmd = new ArrayList<String>();
         cmd.add(mFfmpegBin);
-//        cmd.add("-threads");//多线程的运算，充分利用多核cpu
-//        cmd.add("" + getNumCores());
+        cmd.add("-ss");//这里时间必须放在第一个否则会消耗很长时间
+        cmd.add("40.500");
+        cmd.add("-threads");//多线程的运算，充分利用多核cpu
+        cmd.add("" + getNumCores());
         cmd.add("-i");
         cmd.add(file_path1);
 //        cmd.add("-f");
 //        cmd.add("image2");
-        cmd.add("-ss");
-        cmd.add("08.010");
+
 //        cmd.add("-t");
 //        cmd.add("0.001");
 //        cmd.add("-s");
 //        cmd.add("352x240");
-//        cmd.add("-vframes");
-//        cmd.add("1");
+        cmd.add("-vframes");
+        cmd.add("1");
+        cmd.add("-f");
+        cmd.add("image2");
+        cmd.add("-s");
+        cmd.add("120x120");
         cmd.add(file_path2);
 
 //        cmd.add("-acodec");
@@ -312,10 +317,10 @@ public class FfmpegController {
         cmd.add(mFfmpegBin);
 //        cmd.add("-threads");//多线程的运算，充分利用多核cpu
 //        cmd.add("" + getNumCores());
-        cmd.add("-i");
-        cmd.add(file_path1);
         cmd.add("-ss");
         cmd.add(getHH_MM_SSTime(startTime));
+        cmd.add("-i");
+        cmd.add(file_path1);
         cmd.add("-t");
         cmd.add(getHH_MM_SSTime(duration));
 //        cmd.add("-f");

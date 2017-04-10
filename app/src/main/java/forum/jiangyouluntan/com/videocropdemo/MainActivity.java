@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import org.ffmpeg.android.FfmpegController;
 import org.ffmpeg.android.ShellUtils;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String FILE_PATH = "/storage/emulated/0/Movies/fffff.mp4";
     private static final String TARGET_FILE_PATH = "/storage/emulated/0/Movies/cc.mp4";
+    private static final String DIR_PATH = "/storage/emulated/0/Movies/";
     private static final String FILE_PATH_2 = "/storage/emulated/0/Movies/aa.jpg";
 
     private TextureVideoView videoView;
@@ -102,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 videoView.seekTo(getCurrentTime(mCurrentX, mCurrentY));
             }
         });
-        ffmpegTest();
+//        ffmpegTest();
     }
 
 
@@ -133,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
                     getApplicationInfo().dataDir);
             FfmpegController fc = new FfmpegController(
                     MainActivity.this, fileAppRoot);
+            Log.d("cropimage", "cropImage start time=====>" + System.currentTimeMillis());
             fc.getVideoImage(FILE_PATH, FILE_PATH_2, new ShellUtils.ShellCallback() {
                 @Override
                 public void shellOut(String shellLine) {
@@ -141,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void processComplete(int exitValue) {
-
+                    Log.d("cropimage", "cropImage end time=====>" + System.currentTimeMillis());
                 }
             });
         } catch (IOException e) {
@@ -193,6 +196,48 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void processComplete(int exitValue) {
 
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+    }
+
+    public void getImage(View view) {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    File file = new File(FILE_PATH_2);
+                    if (file.exists()) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(MainActivity.this, "已经存在", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        return;
+                    }
+                    File fileAppRoot = new File(
+                            getApplicationInfo().dataDir);
+                    FfmpegController fc = new FfmpegController(
+                            MainActivity.this, fileAppRoot);
+                    Log.d("cropimage", "cropImage start time=====>" + System.currentTimeMillis());
+                    fc.getVideoImage(FILE_PATH, FILE_PATH_2, new ShellUtils.ShellCallback() {
+                        @Override
+                        public void shellOut(String shellLine) {
+                            Log.d("shellLine", "shellLine===>" + shellLine);
+                        }
+
+                        @Override
+                        public void processComplete(int exitValue) {
+                            Log.d("cropimage", "cropImage end time=====>" + System.currentTimeMillis());
                         }
                     });
                 } catch (IOException e) {
@@ -288,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
 
     private int getCurrentTime(float x, float y) {
         int position = recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(x, y));
-        Log.d("currentTime","currentTime====>"+(position - 1) * 1000);
+        Log.d("currentTime", "currentTime====>" + (position - 1) * 1000);
         return (position - 1) * 1000;
     }
 

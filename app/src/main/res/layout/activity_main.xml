@@ -17,10 +17,21 @@
         />
 
     <Button
+        android:id="@+id/btn_crop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/videoView"
+        android:text="视频裁剪"
         android:onClick="crop"
+        />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/videoView"
+        android:layout_toRightOf="@+id/btn_crop"
+        android:text="图片截图"
+        android:onClick="getImage"
         />
 
     <android.support.v7.widget.RecyclerView
