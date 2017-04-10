@@ -434,6 +434,15 @@ public class TextureVideoView extends ScalableTextureView
             mTargetState = STATE_PLAYING;
         }
 
+//        mMediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+//            @Override
+//            public void onSeekComplete(MediaPlayer mp) {
+//                if(!isPlaying()){
+//                    resume();
+//                }
+//            }
+//        });
+
         if (mMediaPlayerCallback != null) {
             mHandler.post(new Runnable() {
                 @Override
@@ -445,6 +454,8 @@ public class TextureVideoView extends ScalableTextureView
             });
         }
     }
+
+
 
     @Override
     public void onVideoSizeChanged(final MediaPlayer mp, final int width, final int height) {

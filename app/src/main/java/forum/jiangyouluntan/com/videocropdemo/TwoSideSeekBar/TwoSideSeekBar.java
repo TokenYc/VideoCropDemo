@@ -348,7 +348,7 @@ public class TwoSideSeekBar extends View {
      *
      * @return
      */
-    private long getCropTime() {
+    public long getCropTime() {
         Log.d(Tag, "cropTime=====>" + DEFAULT_DURATION * 1000 * (getCropLength() / getOriginCropLength()));
         return (long) (DEFAULT_DURATION * 1000 * ((float) getCropLength() / getOriginCropLength()));
     }

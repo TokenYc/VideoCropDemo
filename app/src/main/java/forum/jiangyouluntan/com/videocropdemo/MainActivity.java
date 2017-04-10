@@ -23,6 +23,7 @@ import org.ffmpeg.android.ShellUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Target;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -33,7 +34,8 @@ import forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String FILE_PATH = "/storage/emulated/0/Movies/不将就.mp4";
+    private static final String FILE_PATH = "/storage/emulated/0/Movies/fffff.mp4";
+    private static final String TARGET_FILE_PATH = "/storage/emulated/0/Movies/cc.mp4";
     private static final String FILE_PATH_2 = "aa.jpg";
 
     private TextureVideoView videoView;
@@ -46,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private MediaMetadataRetriever mmr = new MediaMetadataRetriever();
     private Executor executor;
     private float mCurrentX;
-    private float mCurrentY =0;
+    private float mCurrentY = 0;
 
     Callable<Bitmap> callable = new Callable<Bitmap>() {
         @Override
@@ -78,32 +80,26 @@ public class MainActivity extends AppCompatActivity {
 //        executor.execute(futureTask);
         adapter = new MyAdapter();
         initRecyclerView();
-        mCurrentX =dp2px(this, 30);
+        mCurrentX = dp2px(this, 30);
         seekBar.setOnVideoStateChangeListener(new TwoSideSeekBar.OnVideoStateChangeListener() {
             @Override
             public void onStart(float x, float y) {
-                int position=recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(x,y));
-                int currentTime=position-1;
-                mCurrentX=x;
-                mCurrentY=y;
-                Log.d("position", "currentPosition=====>" + position);
+                mCurrentX = x;
+                mCurrentY = y;
                 videoView.resume();
-                videoView.seekTo(currentTime*1000);
+                videoView.seekTo(getCurrentTime(mCurrentX, mCurrentY));
             }
 
             @Override
             public void onPause() {
-                if(videoView.isPlaying()) {
+                if (videoView.isPlaying()) {
                     videoView.pause();
                 }
             }
 
             @Override
             public void onEnd() {
-                int position=recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(mCurrentX, mCurrentY));
-                int currentTime=position-1;
-                Log.d("position", "currentPosition=====>" + currentTime);
-                videoView.seekTo(currentTime*1000);
+                videoView.seekTo(getCurrentTime(mCurrentX, mCurrentY));
             }
         });
         ffmpegTest();
@@ -119,10 +115,7 @@ public class MainActivity extends AppCompatActivity {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    int currentPosition=recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(mCurrentX, mCurrentY));
-                    int currentTime=currentPosition-1;
-                    Log.d("position", "currentPosition=====>" + recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(mCurrentX, mCurrentY)));
-                    videoView.seekTo(currentTime*1000);
+                    videoView.seekTo(getCurrentTime(mCurrentX, mCurrentY));
                     seekBar.resetIndicatorAnimator();
                 }
             }
@@ -179,8 +172,37 @@ public class MainActivity extends AppCompatActivity {
         videoView.start();
     }
 
-    public void seek(View view) {
-        videoView.seekTo(20 * 1000);
+    public void crop(View view) {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    long startTime = getCurrentTime(mCurrentX, mCurrentY);
+                    long cropTime = seekBar.getCropTime();
+                    Log.d("crop", "startTime======>" + startTime + "cropTime=====>" + cropTime);
+                    File fileAppRoot = new File(
+                            getApplicationInfo().dataDir);
+                    FfmpegController ffmpegController = new FfmpegController(MainActivity.this, fileAppRoot);
+                    ffmpegController.cropVideo(FILE_PATH, TARGET_FILE_PATH, startTime, cropTime, new ShellUtils.ShellCallback() {
+                        @Override
+                        public void shellOut(String shellLine) {
+                            Log.d("shellout", "shellLine====>" + shellLine);
+                        }
+
+                        @Override
+                        public void processComplete(int exitValue) {
+
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
     }
 
     class MyAdapter extends RecyclerView.Adapter {
@@ -194,10 +216,10 @@ public class MainActivity extends AppCompatActivity {
         public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
             final MyViewHolder viewHolder = (MyViewHolder) holder;
             viewHolder.imvCrop.setLayoutParams(new LinearLayout.LayoutParams(seekBar.getSingleWidth(), seekBar.getSingleHeight()));
-            if (position==0) {
+            if (position == 0) {
                 viewHolder.imvCrop.setBackgroundColor(Color.BLACK);
                 viewHolder.imvCrop.setImageBitmap(null);
-            }else{
+            } else {
                 viewHolder.imvCrop.setImageBitmap(bitmap);
             }
 ////            try {
@@ -262,6 +284,12 @@ public class MainActivity extends AppCompatActivity {
                 imvCrop = (ImageView) itemView.findViewById(R.id.imv_crop);
             }
         }
+    }
+
+    private int getCurrentTime(float x, float y) {
+        int position = recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(x, y));
+        Log.d("currentTime","currentTime====>"+(position - 1) * 1000);
+        return (position - 1) * 1000;
     }
 
     private BitmapFactory.Options getBitmapOption(int inSampleSize) {

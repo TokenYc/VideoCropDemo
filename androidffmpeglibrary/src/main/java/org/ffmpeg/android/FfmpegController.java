@@ -272,6 +272,7 @@ public class FfmpegController {
 
     /**
      * ffmpeg -i 1.mp4 -ss 00:00:03 -f image2 -s 240x240  bsdb.jpg
+     *
      * @param file_path1
      * @param file_path2
      * @param sc
@@ -306,8 +307,58 @@ public class FfmpegController {
         execFFMPEG(cmd, sc);
     }
 
+    public void cropVideo(String file_path1, String file_path2, long startTime, long duration, ShellCallback sc) throws Exception {
+        ArrayList<String> cmd = new ArrayList<String>();
+        cmd.add(mFfmpegBin);
+//        cmd.add("-threads");//多线程的运算，充分利用多核cpu
+//        cmd.add("" + getNumCores());
+        cmd.add("-i");
+        cmd.add(file_path1);
+        cmd.add("-ss");
+        cmd.add(getHH_MM_SSTime(startTime));
+        cmd.add("-t");
+        cmd.add(getHH_MM_SSTime(duration));
+//        cmd.add("-f");
+//        cmd.add("image2");
+//        cmd.add("-ss");
+//        cmd.add("08.010");
+//        cmd.add("-t");
+//        cmd.add("0.001");
+//        cmd.add("-s");
+//        cmd.add("352x240");
+//        cmd.add("-vframes");
+//        cmd.add("1");
+//        cmd.add(file_path2);
+
+//        cmd.add("-acodec");
+//        cmd.add("aac");
+//        cmd.add(file_path2);
+
+//        String out_path = "222" + System.currentTimeMillis() + ".mp4";
+//        cmd.add(out_path);
+//        cmd.add("-vcodec");
+//        cmd.add("libx264");
+//
+//        cmd.add("-acodec");
+//        cmd.add("copy");
+        cmd.add(file_path2);
+        Log.d("cmd", "cmd:" + cmd);
+        execFFMPEG(cmd, sc);
+    }
+
+    private String getHH_MM_SSTime(Long time) {
+        int s = Math.round((float)time / 1000);
+        int hour=s/3600;
+        int min=(s-hour*3600)/60;
+        int second=s-hour*3600-min*60;
+        String hh_mm_ss=hour+":"+min+":"+second;
+        Log.d("time", "time hh:mm:ss======>" + hh_mm_ss);
+        return hh_mm_ss;
+    }
+
     /**
      * 获取核心数
+     *
      * @return
      */
     private int getNumCores() {
