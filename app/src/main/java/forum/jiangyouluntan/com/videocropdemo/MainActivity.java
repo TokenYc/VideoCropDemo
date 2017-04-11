@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
 //    private static final String FILE_PATH = "/storage/emulated/0/DCIM/Camera/VID_20170411_145656.mp4";
 //    private static final String TARGET_FILE_PATH = "/storage/emulated/0/DCIM/Camera/cc.mp4";
-//    private static final String DIR_PATH = "/storage/emulated/0/DCIM/Camera/images1/";
+//    private static final String DIR_PATH = "/storage/emulated/0/DCIM/Camera/images2/";
 //    private static final String FILE_PATH_2 = "/storage/emulated/0/DCIM/Camera/aa.jpg";
 
     private TextureVideoView videoView;
