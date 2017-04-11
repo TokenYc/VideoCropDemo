@@ -278,11 +278,11 @@ public class FfmpegController {
      * @param sc
      * @throws Exception
      */
-    public void getVideoImage(String file_path1, String file_path2, ShellCallback sc) throws Exception {
+    public void getVideoImage(String file_path1, String file_path2, float time,ShellCallback sc) throws Exception {
         ArrayList<String> cmd = new ArrayList<String>();
         cmd.add(mFfmpegBin);
         cmd.add("-ss");//这里时间必须放在第一个否则会消耗很长时间
-        cmd.add("40.500");
+        cmd.add(time+"");
         cmd.add("-threads");//多线程的运算，充分利用多核cpu
         cmd.add("" + getNumCores());
         cmd.add("-i");
@@ -299,7 +299,7 @@ public class FfmpegController {
         cmd.add("-f");
         cmd.add("image2");
         cmd.add("-s");
-        cmd.add("120x120");
+        cmd.add("480x240");
         cmd.add(file_path2);
 
 //        cmd.add("-acodec");

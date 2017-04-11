@@ -33,6 +33,7 @@ public class TwoSideSeekBar extends View {
     private static final int DEFAULT_HEIGHT = 42;//默认高度，单位dp
     private static final int DEFAULT_WIDTH = 300;//默认宽度，单位dp
     private static final int DEFAULT_DURATION = 10;//默认最长裁剪时间长度
+    private static final int DEFAULT_POSITION=-1;//未设置时为止，用来判断是否初始化
 
     private int mHeight = dp2px(getContext(), DEFAULT_HEIGHT);//View的总高度,默认为42dp
     private int mWidth = dp2px(getContext(), DEFAULT_WIDTH);//measure时获取
@@ -46,9 +47,9 @@ public class TwoSideSeekBar extends View {
     private int mOutLineRectStrokeColor = Color.parseColor("#77ffffff");
     private int mIndicatorStrokeColor = Color.parseColor("#ffffff");//指示器颜色
 
-    private int mLeftMarkPosition = mMarginSide;//左边标记的位置，默认位置为mMarginSide
+    private int mLeftMarkPosition=DEFAULT_POSITION;//左边标记的位置，默认位置为mMarginSide
 
-    private int mRightMarkPosition; //measure时获取
+    private int mRightMarkPosition=DEFAULT_POSITION; //measure时获取
 
     private Paint mPaintRect;//外围矩形绘笔
     private Paint mPaintCover;//遮罩矩形绘笔
@@ -272,6 +273,8 @@ public class TwoSideSeekBar extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        Log.d(Tag, "调用了onMeasure");
+
         measureHeight(heightMeasureSpec);
         setMeasuredDimension(measureWidth(widthMeasureSpec), measureHeight(heightMeasureSpec));
     }
@@ -310,13 +313,22 @@ public class TwoSideSeekBar extends View {
                 Log.d(Tag, "specMode=====>UNSPECIFIED" + "specSize=====>" + specSize);
                 break;
         }
-        mLeftMarkPosition = mMarginSide;
-        mRightMarkPosition = mWidth - mMarginSide;
+        //// TODO: 2017/4/11 这里在滑动快的时候就调用了
         mMarginSide=mWidth/12;
         Log.d(Tag, "mMarginSide=====>" + mMarginSide);
+        if (mLeftMarkPosition==DEFAULT_POSITION){
+            mLeftMarkPosition = mMarginSide;
+        }
+        if (mRightMarkPosition==DEFAULT_POSITION){
+            mRightMarkPosition = mWidth - mMarginSide;
+        }
         return mWidth;
     }
 
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+    }
 
     public int getSingleWidth(){
         return mMarginSide;

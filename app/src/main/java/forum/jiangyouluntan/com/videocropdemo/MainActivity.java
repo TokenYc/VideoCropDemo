@@ -17,14 +17,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import org.ffmpeg.android.FfmpegController;
 import org.ffmpeg.android.ShellUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Target;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -37,8 +37,13 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String FILE_PATH = "/storage/emulated/0/Movies/fffff.mp4";
     private static final String TARGET_FILE_PATH = "/storage/emulated/0/Movies/cc.mp4";
-    private static final String DIR_PATH = "/storage/emulated/0/Movies/";
+    private static final String DIR_PATH = "/storage/emulated/0/Movies/images/";
     private static final String FILE_PATH_2 = "/storage/emulated/0/Movies/aa.jpg";
+
+//    private static final String FILE_PATH = "/storage/emulated/0/DCIM/Camera/VID_20170411_145656.mp4";
+//    private static final String TARGET_FILE_PATH = "/storage/emulated/0/DCIM/Camera/cc.mp4";
+//    private static final String DIR_PATH = "/storage/emulated/0/DCIM/Camera/images1/";
+//    private static final String FILE_PATH_2 = "/storage/emulated/0/DCIM/Camera/aa.jpg";
 
     private TextureVideoView videoView;
     private RecyclerView recyclerView;
@@ -51,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
     private Executor executor;
     private float mCurrentX;
     private float mCurrentY = 0;
+    private String videoDuration;
+    private Queue<CropImageEntity> queue;
+
 
     Callable<Bitmap> callable = new Callable<Bitmap>() {
         @Override
@@ -76,8 +84,9 @@ public class MainActivity extends AppCompatActivity {
         videoView = (TextureVideoView) findViewById(R.id.videoView);
         seekBar = (TwoSideSeekBar) findViewById(R.id.seekBar);
 
+        queue = new LinkedList<>();
         mmr.setDataSource(FILE_PATH);
-        executor = Executors.newFixedThreadPool(4);
+        executor = Executors.newFixedThreadPool(1);
         initVideoSize();
 //        executor.execute(futureTask);
         adapter = new MyAdapter();
@@ -129,36 +138,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void ffmpegTest() {
-        try {
-            File fileAppRoot = new File(
-                    getApplicationInfo().dataDir);
-            FfmpegController fc = new FfmpegController(
-                    MainActivity.this, fileAppRoot);
-            Log.d("cropimage", "cropImage start time=====>" + System.currentTimeMillis());
-            fc.getVideoImage(FILE_PATH, FILE_PATH_2, new ShellUtils.ShellCallback() {
-                @Override
-                public void shellOut(String shellLine) {
-                    Log.d("shellLine", "shellLine===>" + shellLine);
-                }
-
-                @Override
-                public void processComplete(int exitValue) {
-                    Log.d("cropimage", "cropImage end time=====>" + System.currentTimeMillis());
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     private void initVideoSize() {
-        String duration;
         String width = null;
         String height = null;
-        duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        videoDuration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
         width = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
         height = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
 
@@ -166,11 +150,12 @@ public class MainActivity extends AppCompatActivity {
         bitmap = mmr.getFrameAtTime();
         Log.d("video", "getFrame use time====>" + (System.currentTimeMillis() - currentTime));
 
-        Log.d("video", "duration====>" + duration + "width====>" + width + "height======>" + height);
+        Log.d("video", "videoDuration====>" + videoDuration + "width====>" + width + "height======>" + height);
 
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) videoView.getLayoutParams();
-        lp.width = Integer.parseInt(width) / 2;
-        lp.height = Integer.parseInt(height) / 2;
+        lp.width = getResources().getDisplayMetrics().widthPixels;
+        lp.height = (int) (Integer.parseInt(height) *(lp.width/Float.parseFloat(width)));
+        videoView.setLayoutParams(lp);
         videoView.setVideoPath(FILE_PATH);
         videoView.start();
     }
@@ -209,45 +194,44 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getImage(View view) {
+        executor.execute(new Runnable() {
+                             @Override
+                             public void run() {
+                                 try {
+                                     File fileAppRoot = new File(
+                                             getApplicationInfo().dataDir);
+                                     FfmpegController fc = new FfmpegController(
+                                             MainActivity.this, fileAppRoot);
+                                     Log.d("cropimage", "cropImage start time=====>" + System.currentTimeMillis());
+                                     fc.getVideoImage(FILE_PATH, "", 0, new ShellUtils.ShellCallback() {
+                                         @Override
+                                         public void shellOut(String shellLine) {
+                                             Log.d("shellLine", "shellLine===>" + shellLine);
+                                         }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    File file = new File(FILE_PATH_2);
-                    if (file.exists()) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(MainActivity.this, "已经存在", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                        return;
-                    }
-                    File fileAppRoot = new File(
-                            getApplicationInfo().dataDir);
-                    FfmpegController fc = new FfmpegController(
-                            MainActivity.this, fileAppRoot);
-                    Log.d("cropimage", "cropImage start time=====>" + System.currentTimeMillis());
-                    fc.getVideoImage(FILE_PATH, FILE_PATH_2, new ShellUtils.ShellCallback() {
-                        @Override
-                        public void shellOut(String shellLine) {
-                            Log.d("shellLine", "shellLine===>" + shellLine);
-                        }
+                                         @Override
+                                         public void processComplete(int exitValue) {
+                                             Log.d("cropimage", "cropImage end time=====>" + System.currentTimeMillis());
+                                             runOnUiThread(new Runnable() {
+                                                 @Override
+                                                 public void run() {
+//                                    imageView.setImageBitmap(BitmapFactory.decodeFile(targetFile.getPath()));
+                                                 }
+                                             });
+                                         }
+                                     });
+                                 } catch (IOException e) {
+                                     e.printStackTrace();
+                                 } catch (Exception e) {
+                                     e.printStackTrace();
+                                 }
+                             }
+                         }
+        );
+    }
 
-                        @Override
-                        public void processComplete(int exitValue) {
-                            Log.d("cropimage", "cropImage end time=====>" + System.currentTimeMillis());
-                        }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
+    public void getImage(final ImageView imageView, final int position) {
+        executor.execute(new MyImageCropRunnable(imageView,position));
     }
 
     class MyAdapter extends RecyclerView.Adapter {
@@ -261,64 +245,24 @@ public class MainActivity extends AppCompatActivity {
         public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
             final MyViewHolder viewHolder = (MyViewHolder) holder;
             viewHolder.imvCrop.setLayoutParams(new LinearLayout.LayoutParams(seekBar.getSingleWidth(), seekBar.getSingleHeight()));
-            if (position == 0) {
-                viewHolder.imvCrop.setBackgroundColor(Color.BLACK);
+            if (position == 0||position==getItemCount()-1) {
+                viewHolder.imvCrop.setBackgroundColor(Color.WHITE);
                 viewHolder.imvCrop.setImageBitmap(null);
             } else {
-                viewHolder.imvCrop.setImageBitmap(bitmap);
+                viewHolder.imvCrop.setImageBitmap(null);
+                getImage(viewHolder.imvCrop, position);
             }
-////            try {
-//                currentTime=position*1000*1000;
-////                FutureTask<Bitmap> futureTask = new FutureTask<Bitmap>(callable);
-//////                if (position>0)
-////                executor.execute(futureTask);
-////            new Thread(new Runnable() {
-////                @Override
-////                public void run() {
-////                    long currentTime=System.currentTimeMillis();
-////                    Bitmap tempBitmap = mmr.getFrameAtTime(position*1000*1000);
-////                    Log.d("video", "getFrame use time====>" + (System.currentTimeMillis() - currentTime));
-////                    Matrix matrix = new Matrix();
-////                    matrix.postScale(0.1f, 0.1f);
-////                    tempBitmap = Bitmap.createBitmap(tempBitmap, 0, 0, tempBitmap.getWidth(), tempBitmap.getHeight(), matrix, true);
-////                    final Bitmap finalTempBitmap = tempBitmap;
-////                    runOnUiThread(new Runnable() {
-////                        @Override
-////                        public void run() {
-////                            viewHolder.imvCrop.setImageBitmap(finalTempBitmap);
-////                        }
-////                    });
-////                }
-////            }).start();
-//                executor.execute(new Runnable() {
-//                    @Override
-//                    public void run() {
-////                        long currentTime=System.currentTimeMillis();
-//                        Bitmap tempBitmap = mmr.getFrameAtTime(position*1000*1000);
-////                        Log.d("video", "getFrame use time====>" + (System.currentTimeMillis() - currentTime));
-//                        Matrix matrix = new Matrix();
-//                        matrix.postScale(0.1f, 0.1f);
-//                        tempBitmap = Bitmap.createBitmap(tempBitmap, 0, 0, tempBitmap.getWidth(), tempBitmap.getHeight(), matrix, true);
-//                        final Bitmap finalTempBitmap = tempBitmap;
-//                        runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                viewHolder.imvCrop.setImageBitmap(finalTempBitmap);
-//                            }
-//                        });
-//                    }
-//                });
-////                viewHolder.imvCrop.setImageBitmap(futureTask.get());
-////            } catch (InterruptedException e) {
-////                e.printStackTrace();
-////            } catch (ExecutionException e) {
-////                e.printStackTrace();
-////            }
         }
 
         @Override
         public int getItemCount() {
-            return 40;
+            return Integer.parseInt(videoDuration)/1000+2;
+        }
+
+        @Override
+        public void onViewRecycled(RecyclerView.ViewHolder holder) {
+            super.onViewRecycled(holder);
+            int position=holder.getAdapterPosition();
         }
 
         class MyViewHolder extends RecyclerView.ViewHolder {
@@ -349,5 +293,63 @@ public class MainActivity extends AppCompatActivity {
     private int dp2px(Context context, int dpValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dpValue * scale + 0.5f);
+    }
+
+    class MyImageCropRunnable implements Runnable{
+
+        ImageView imageView;
+        int position;
+
+        public MyImageCropRunnable(ImageView imageView,int position) {
+            this.imageView=imageView;
+            this.position=position;
+        }
+
+        @Override
+        public void run() {
+            try {
+                File fileDir = new File(DIR_PATH);
+                if (!fileDir.exists()) {
+                    fileDir.mkdir();
+                }
+                final File targetFile = new File(DIR_PATH + position + ".jpg");
+                Log.d("position", "position====>" + position);
+                if (targetFile.exists()) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            imageView.setImageBitmap(BitmapFactory.decodeFile(targetFile.getPath()));
+                        }
+                    });
+                    return;
+                }
+                File fileAppRoot = new File(
+                        getApplicationInfo().dataDir);
+                FfmpegController fc = new FfmpegController(
+                        MainActivity.this, fileAppRoot);
+                Log.d("cropimage", "position====>" + position+"  cropImage start time=====>" + System.currentTimeMillis());
+                fc.getVideoImage(FILE_PATH, targetFile.getPath(), position, new ShellUtils.ShellCallback() {
+                    @Override
+                    public void shellOut(String shellLine) {
+                        Log.d("shellLine", "shellLine===>" + shellLine);
+                    }
+
+                    @Override
+                    public void processComplete(int exitValue) {
+                        Log.d("cropimage", "position====>" + position+"  cropImage end time=====>" + System.currentTimeMillis());
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                imageView.setImageBitmap(BitmapFactory.decodeFile(targetFile.getPath()));
+                            }
+                        });
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
