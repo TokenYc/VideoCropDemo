@@ -6,8 +6,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.media.MediaMetadataRetriever;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -36,6 +37,7 @@ import forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView;
 public class MainActivity extends AppCompatActivity {
 
     private static final String FILE_PATH = "/storage/emulated/0/Movies/fffff.mp4";
+    //    private final String FILE_PATH = getInnerSDCardPath() + "/Movies/fffff.mp4";
     private static final String TARGET_FILE_PATH = "/storage/emulated/0/Movies/cc.mp4";
     private static final String DIR_PATH = "/storage/emulated/0/Movies/images/";
     private static final String FILE_PATH_2 = "/storage/emulated/0/Movies/aa.jpg";
@@ -85,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
         seekBar = (TwoSideSeekBar) findViewById(R.id.seekBar);
 
         queue = new LinkedList<>();
+        Log.e("FILE_PATH", "FILE_PATH==>" + FILE_PATH);
         mmr.setDataSource(FILE_PATH);
         executor = Executors.newFixedThreadPool(1);
         initVideoSize();
@@ -154,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
 
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) videoView.getLayoutParams();
         lp.width = getResources().getDisplayMetrics().widthPixels;
-        lp.height = (int) (Integer.parseInt(height) *(lp.width/Float.parseFloat(width)));
+        lp.height = (int) (Integer.parseInt(height) * (lp.width / Float.parseFloat(width)));
         videoView.setLayoutParams(lp);
         videoView.setVideoPath(FILE_PATH);
         videoView.start();
@@ -231,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getImage(final ImageView imageView, final int position) {
-        executor.execute(new MyImageCropRunnable(imageView,position));
+        executor.execute(new MyImageCropRunnable(imageView, position));
     }
 
     class MyAdapter extends RecyclerView.Adapter {
@@ -245,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
             final MyViewHolder viewHolder = (MyViewHolder) holder;
             viewHolder.imvCrop.setLayoutParams(new LinearLayout.LayoutParams(seekBar.getSingleWidth(), seekBar.getSingleHeight()));
-            if (position == 0||position==getItemCount()-1) {
+            if (position == 0 || position == getItemCount() - 1) {
                 viewHolder.imvCrop.setBackgroundColor(Color.WHITE);
                 viewHolder.imvCrop.setImageBitmap(null);
             } else {
@@ -256,13 +259,13 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return Integer.parseInt(videoDuration)/1000+2;
+            return Integer.parseInt(videoDuration) / 1000 + 2;
         }
 
         @Override
         public void onViewRecycled(RecyclerView.ViewHolder holder) {
             super.onViewRecycled(holder);
-            int position=holder.getAdapterPosition();
+            int position = holder.getAdapterPosition();
         }
 
         class MyViewHolder extends RecyclerView.ViewHolder {
@@ -295,14 +298,14 @@ public class MainActivity extends AppCompatActivity {
         return (int) (dpValue * scale + 0.5f);
     }
 
-    class MyImageCropRunnable implements Runnable{
+    class MyImageCropRunnable implements Runnable {
 
         ImageView imageView;
         int position;
 
-        public MyImageCropRunnable(ImageView imageView,int position) {
-            this.imageView=imageView;
-            this.position=position;
+        public MyImageCropRunnable(ImageView imageView, int position) {
+            this.imageView = imageView;
+            this.position = position;
         }
 
         @Override
@@ -327,7 +330,7 @@ public class MainActivity extends AppCompatActivity {
                         getApplicationInfo().dataDir);
                 FfmpegController fc = new FfmpegController(
                         MainActivity.this, fileAppRoot);
-                Log.d("cropimage", "position====>" + position+"  cropImage start time=====>" + System.currentTimeMillis());
+                Log.d("cropimage", "position====>" + position + "  cropImage start time=====>" + System.currentTimeMillis());
                 fc.getVideoImage(FILE_PATH, targetFile.getPath(), position, new ShellUtils.ShellCallback() {
                     @Override
                     public void shellOut(String shellLine) {
@@ -336,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void processComplete(int exitValue) {
-                        Log.d("cropimage", "position====>" + position+"  cropImage end time=====>" + System.currentTimeMillis());
+                        Log.d("cropimage", "position====>" + position + "  cropImage end time=====>" + System.currentTimeMillis());
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -351,5 +354,14 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * 获取内置SD卡路径
+     *
+     * @return
+     */
+    public String getInnerSDCardPath() {
+        return Environment.getExternalStorageDirectory().getPath();
     }
 }

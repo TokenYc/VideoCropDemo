@@ -199,7 +199,13 @@ public class TwoSideSeekBar extends View {
                 mVideoStateChangeListener.onEnd();
             }
         });
-        mIndicatorAnimator.start();
+        try {
+            if (mIndicatorAnimator!=null){
+                mIndicatorAnimator.start();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void cancelIndicatorAnimator() {
