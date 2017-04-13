@@ -166,7 +166,7 @@ public class TwoSideSeekBar extends View {
     public void resetIndicatorAnimator() {
         cancelIndicatorAnimator();
         mIndicatorAnimator = ObjectAnimator
-                .ofFloat(null, "yc", mLeftMarkPosition, mRightMarkPosition)
+                .ofFloat(mContext, "yc", mLeftMarkPosition, mRightMarkPosition)
                 .setDuration(getCropTime());
         mIndicatorAnimator.removeAllListeners();
         mIndicatorAnimator.setInterpolator(new LinearInterpolator());

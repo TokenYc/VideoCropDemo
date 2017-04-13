@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.media.MediaMetadataRetriever;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -35,10 +36,11 @@ import forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String FILE_PATH = "/storage/emulated/0/Movies/fffff.mp4";
-    private static final String TARGET_FILE_PATH = "/storage/emulated/0/Movies/cc.mp4";
-    private static final String DIR_PATH = "/storage/emulated/0/Movies/images/";
-    private static final String FILE_PATH_2 = "/storage/emulated/0/Movies/aa.jpg";
+    private static final String ROOT_PATH="/storage/sdcard0/相机";
+    private static final String FILE_PATH = ROOT_PATH+"/video_20170413_085109.mp4";
+    private static final String TARGET_FILE_PATH = ROOT_PATH+"/cc.mp4";
+    private static final String DIR_PATH = ROOT_PATH+"/images/";
+    private static final String FILE_PATH_2 = ROOT_PATH+"/aa.jpg";
 
 //    private static final String FILE_PATH = "/storage/emulated/0/DCIM/Camera/VID_20170411_145656.mp4";
 //    private static final String TARGET_FILE_PATH = "/storage/emulated/0/DCIM/Camera/cc.mp4";
@@ -83,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         videoView = (TextureVideoView) findViewById(R.id.videoView);
         seekBar = (TwoSideSeekBar) findViewById(R.id.seekBar);
-
+        Log.d("root dir", "root dir====>" + Environment.getExternalStorageDirectory().getPath());
         queue = new LinkedList<>();
         mmr.setDataSource(FILE_PATH);
         executor = Executors.newFixedThreadPool(1);
@@ -97,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
             public void onStart(float x, float y) {
                 mCurrentX = x;
                 mCurrentY = y;
-                videoView.resume();
                 videoView.seekTo(getCurrentTime(mCurrentX, mCurrentY));
             }
 
@@ -140,21 +141,22 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void initVideoSize() {
-        String width = null;
-        String height = null;
+        int width ;
+        int height;
         videoDuration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        width = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
-        height = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
-
+//        width = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+//        height = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
         long currentTime = System.currentTimeMillis();
         bitmap = mmr.getFrameAtTime();
+        width=bitmap.getWidth();
+        height=bitmap.getHeight();
         Log.d("video", "getFrame use time====>" + (System.currentTimeMillis() - currentTime));
-
         Log.d("video", "videoDuration====>" + videoDuration + "width====>" + width + "height======>" + height);
 
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) videoView.getLayoutParams();
         lp.width = getResources().getDisplayMetrics().widthPixels;
-        lp.height = (int) (Integer.parseInt(height) *(lp.width/Float.parseFloat(width)));
+        lp.height = (int) (height *(lp.width/(float)width));
+        Log.d("video", "targetWidth=====>" + lp.width + "targetHeight======>" + lp.height);
         videoView.setLayoutParams(lp);
         videoView.setVideoPath(FILE_PATH);
         videoView.start();

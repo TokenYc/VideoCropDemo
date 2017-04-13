@@ -36,7 +36,8 @@ public class TextureVideoView extends ScalableTextureView
         MediaPlayer.OnCompletionListener,
         MediaPlayer.OnErrorListener,
         MediaPlayer.OnInfoListener,
-        MediaPlayer.OnBufferingUpdateListener {
+        MediaPlayer.OnBufferingUpdateListener,
+        MediaPlayer.OnSeekCompleteListener {
 
     private static final String TAG = "TextureVideoView";
     private static final boolean SHOW_LOGS = true;
@@ -74,6 +75,7 @@ public class TextureVideoView extends ScalableTextureView
     static {
         sThread.start();
     }
+
 
     public interface MediaPlayerCallback {
         void onPrepared(MediaPlayer mp);
@@ -191,6 +193,7 @@ public class TextureVideoView extends ScalableTextureView
             mMediaPlayer.setOnErrorListener(this);
             mMediaPlayer.setOnInfoListener(this);
             mMediaPlayer.setOnBufferingUpdateListener(this);
+            mMediaPlayer.setOnSeekCompleteListener(this);
             mMediaPlayer.setDataSource(mContext, mUri);
             mMediaPlayer.setSurface(mSurface);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -337,15 +340,15 @@ public class TextureVideoView extends ScalableTextureView
         return isInPlaybackState() && isPlaying;
     }
 
-    public void seekTo(final int msec){
+    public void seekTo(final int msec) {
         mVideoHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (mMediaPlayer!=null) {
+                if (mMediaPlayer != null) {
                     mMediaPlayer.seekTo(msec);
                 }
             }
-        },200);
+        }, 400);
     }
 
     public void mute() {
@@ -397,6 +400,13 @@ public class TextureVideoView extends ScalableTextureView
                     }
                 }
             });
+        }
+    }
+
+    @Override
+    public void onSeekComplete(MediaPlayer mp) {
+        if (mMediaPlayer!=null){
+            mMediaPlayer.start();
         }
     }
 
@@ -454,7 +464,6 @@ public class TextureVideoView extends ScalableTextureView
             });
         }
     }
-
 
 
     @Override
