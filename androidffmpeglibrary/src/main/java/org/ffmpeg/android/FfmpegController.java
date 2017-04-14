@@ -282,7 +282,7 @@ public class FfmpegController {
         cmd.add(file_path);
         cmd.add("-vframes");
         cmd.add("1");
-        cmd.add("-sws_flags ");
+        cmd.add("-sws_flags");
         cmd.add("neighbor");
         cmd.add("-s");
         cmd.add("96x54");
