@@ -6,8 +6,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.media.MediaMetadataRetriever;
-import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +19,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 
 import org.ffmpeg.android.FfmpegController;
 import org.ffmpeg.android.ShellUtils;
@@ -38,12 +38,15 @@ import forum.jiangyouluntan.com.videocropdemo.TwoSideSeekBar.TwoSideSeekBar;
 import forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView;
 
 public class MainActivity extends AppCompatActivity {
+    //   /Movies/fffff.mp4
+    //   /ZongHeng/temp/video/del_1492062006409.mp4
+    private static final String ROOT_PATH = "/storage/sdcard0/相机";
+    private final String FILE_PATH = getInnerSDCardPath() + "/ZongHeng/temp/video/del_1492062006409.mp4";
+    //    private static final String FILE_PATH = ROOT_PATH+"/video_20170413_085109.mp4";
+    private static final String TARGET_FILE_PATH = ROOT_PATH + "/cc.mp4";
+    private static final String DIR_PATH = ROOT_PATH + "/images/";
 
-    private static final String ROOT_PATH="/storage/sdcard0/相机";
-    private static final String FILE_PATH = ROOT_PATH+"/video_20170413_085109.mp4";
-    private static final String TARGET_FILE_PATH = ROOT_PATH+"/cc.mp4";
-    private static final String DIR_PATH = ROOT_PATH+"/images/";
-    private static final String FILE_PATH_2 = ROOT_PATH+"/aa.jpg";
+    private static final String FILE_PATH_2 = ROOT_PATH + "/aa.jpg";
 
 //    private static final String FILE_PATH = "/storage/emulated/0/DCIM/Camera/VID_20170411_145656.mp4";
 //    private static final String TARGET_FILE_PATH = "/storage/emulated/0/DCIM/Camera/cc.mp4";
@@ -150,21 +153,21 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void initVideoSize() {
-        int width ;
+        int width;
         int height;
         videoDuration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
 //        width = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
 //        height = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
         long currentTime = System.currentTimeMillis();
         bitmap = mmr.getFrameAtTime();
-        width=bitmap.getWidth();
-        height=bitmap.getHeight();
+        width = bitmap.getWidth();
+        height = bitmap.getHeight();
         Log.d("video", "getFrame use time====>" + (System.currentTimeMillis() - currentTime));
         Log.d("video", "videoDuration====>" + videoDuration + "width====>" + width + "height======>" + height);
 
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) videoView.getLayoutParams();
         lp.width = getResources().getDisplayMetrics().widthPixels;
-        lp.height = (int) (height *(lp.width/(float)width));
+        lp.height = (int) (height * (lp.width / (float) width));
         Log.d("video", "targetWidth=====>" + lp.width + "targetHeight======>" + lp.height);
         videoView.setLayoutParams(lp);
         videoView.setVideoPath(FILE_PATH);
@@ -339,10 +342,28 @@ public class MainActivity extends AppCompatActivity {
                 FfmpegController fc = new FfmpegController(
                         MainActivity.this, fileAppRoot);
                 Log.d("cropimage", "position====>" + position + "  cropImage start time=====>" + System.currentTimeMillis());
-                fc.getVideoImage(FILE_PATH, targetFile.getPath(), position, new ShellUtils.ShellCallback() {
+//                fc.getVideoImage(FILE_PATH, targetFile.getPath(), position, new ShellUtils.ShellCallback() {
+//                    @Override
+//                    public void shellOut(String shellLine) {
+//                        Log.d("shellLine", "shellLine===>" + shellLine);
+//                    }
+//
+//                    @Override
+//                    public void processComplete(int exitValue) {
+//                        Log.d("cropimage", "position====>" + position + "  cropImage end time=====>" + System.currentTimeMillis());
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                imageView.setImageBitmap(BitmapFactory.decodeFile(targetFile.getPath()));
+//                            }
+//                        });
+//                    }
+//                });
+                fc.getVideoImage2(position, FILE_PATH, targetFile.getPath(), new ShellUtils.ShellCallback() {
+
                     @Override
                     public void shellOut(String shellLine) {
-                        Log.d("shellLine", "shellLine===>" + shellLine);
+                        Log.e("shellLine", "shellLine===>" + shellLine);
                     }
 
                     @Override
@@ -351,7 +372,12 @@ public class MainActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                imageView.setImageBitmap(BitmapFactory.decodeFile(targetFile.getPath()));
+                                Glide.with(MainActivity.this)
+                                        .load("file://" + targetFile.getPath())
+                                        .centerCrop()
+//                                        .crossFade()
+                                        .into(imageView);
+//                                imageView.setImageBitmap(BitmapFactory.decodeFile(targetFile.getPath()));
                             }
                         });
                     }

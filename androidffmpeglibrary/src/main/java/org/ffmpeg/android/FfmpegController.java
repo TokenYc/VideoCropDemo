@@ -271,6 +271,30 @@ public class FfmpegController {
     }
 
     /**
+     * [vv -ss 155,700 -i /storage/sdcard0/ddpaiSDK/video/video.M6.00e00100b534/L_20170331113817_174_174.mp4 -vframes 1 -sws_flags neighbor -s 96x54 -f image2 -y /storage/sdcard0/ZongHeng/temp//L_20170331113817_174_174_crop_temp/crop_09.jpeg]
+     */
+    public void getVideoImage2(float time, String file_path, String file_path2, ShellCallback sc) throws  Exception {
+        ArrayList<String> cmd = new ArrayList<String>();
+        cmd.add(mFfmpegBin);
+        cmd.add("-ss");
+        cmd.add("" + time);
+        cmd.add("-i");
+        cmd.add(file_path);
+        cmd.add("-vframes");
+        cmd.add("1");
+        cmd.add("-sws_flags ");
+        cmd.add("neighbor");
+        cmd.add("-s");
+        cmd.add("96x54");
+        cmd.add("-f");
+        cmd.add("image2");
+        cmd.add("-y");
+        cmd.add("file_path2");
+        Log.d("cmd", "cmd:" + cmd);
+        execFFMPEG(cmd, sc);
+    }
+
+    /**
      * ffmpeg -i 1.mp4 -ss 00:00:03 -vframes 1 -f image2 -s 240x240  bsdb.jpg
      *
      * @param file_path1
@@ -278,11 +302,11 @@ public class FfmpegController {
      * @param sc
      * @throws Exception
      */
-    public void getVideoImage(String file_path1, String file_path2, float time,ShellCallback sc) throws Exception {
+    public void getVideoImage(String file_path1, String file_path2, float time, ShellCallback sc) throws Exception {
         ArrayList<String> cmd = new ArrayList<String>();
         cmd.add(mFfmpegBin);
         cmd.add("-ss");//这里时间必须放在第一个否则会消耗很长时间
-        cmd.add(time+"");
+        cmd.add(time + "");
         cmd.add("-threads");//多线程的运算，充分利用多核cpu
         cmd.add("" + getNumCores());
         cmd.add("-i");
@@ -352,11 +376,11 @@ public class FfmpegController {
     }
 
     private String getHH_MM_SSTime(Long time) {
-        int s = Math.round((float)time / 1000);
-        int hour=s/3600;
-        int min=(s-hour*3600)/60;
-        int second=s-hour*3600-min*60;
-        String hh_mm_ss=hour+":"+min+":"+second;
+        int s = Math.round((float) time / 1000);
+        int hour = s / 3600;
+        int min = (s - hour * 3600) / 60;
+        int second = s - hour * 3600 - min * 60;
+        String hh_mm_ss = hour + ":" + min + ":" + second;
         Log.d("time", "time hh:mm:ss======>" + hh_mm_ss);
         return hh_mm_ss;
     }
