@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import org.ffmpeg.android.FfmpegController;
 import org.ffmpeg.android.ShellUtils;
@@ -89,6 +90,12 @@ public class MainActivity extends AppCompatActivity {
         seekBar = (TwoSideSeekBar) findViewById(R.id.seekBar);
         Log.d("root dir", "root dir====>" + Environment.getExternalStorageDirectory().getPath());
         queue = new LinkedList<>();
+        File file = new File(FILE_PATH);
+        if (!file.exists()) {
+            Toast.makeText(this, "视频路径不正确！！！", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Log.e("FILE_PATH", "FILE_PATH==>" + FILE_PATH);
         mmr.setDataSource(FILE_PATH);
         executor = Executors.newFixedThreadPool(1);
         initVideoSize();
