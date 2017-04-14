@@ -33,7 +33,7 @@ public class TwoSideSeekBar extends View {
     private static final int DEFAULT_HEIGHT = 42;//默认高度，单位dp
     private static final int DEFAULT_WIDTH = 300;//默认宽度，单位dp
     private static final int DEFAULT_DURATION = 10;//默认最长裁剪时间长度
-    private static final int DEFAULT_POSITION=-1;//未设置时为止，用来判断是否初始化
+    private static final int DEFAULT_POSITION = -1;//未设置时为止，用来判断是否初始化
 
     private int mHeight = dp2px(getContext(), DEFAULT_HEIGHT);//View的总高度,默认为42dp
     private int mWidth = dp2px(getContext(), DEFAULT_WIDTH);//measure时获取
@@ -47,9 +47,9 @@ public class TwoSideSeekBar extends View {
     private int mOutLineRectStrokeColor = Color.parseColor("#77ffffff");
     private int mIndicatorStrokeColor = Color.parseColor("#ffffff");//指示器颜色
 
-    private int mLeftMarkPosition=DEFAULT_POSITION;//左边标记的位置，默认位置为mMarginSide
+    private int mLeftMarkPosition = DEFAULT_POSITION;//左边标记的位置，默认位置为mMarginSide
 
-    private int mRightMarkPosition=DEFAULT_POSITION; //measure时获取
+    private int mRightMarkPosition = DEFAULT_POSITION; //measure时获取
 
     private Paint mPaintRect;//外围矩形绘笔
     private Paint mPaintCover;//遮罩矩形绘笔
@@ -199,12 +199,8 @@ public class TwoSideSeekBar extends View {
                 mVideoStateChangeListener.onEnd();
             }
         });
-        try {
-            if (mIndicatorAnimator!=null){
-                mIndicatorAnimator.start();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (mIndicatorAnimator != null) {
+            mIndicatorAnimator.start();
         }
     }
 
@@ -320,12 +316,12 @@ public class TwoSideSeekBar extends View {
                 break;
         }
         //// TODO: 2017/4/11 这里在滑动快的时候就调用了
-        mMarginSide=mWidth/12;
+        mMarginSide = mWidth / 12;
         Log.d(Tag, "mMarginSide=====>" + mMarginSide);
-        if (mLeftMarkPosition==DEFAULT_POSITION){
+        if (mLeftMarkPosition == DEFAULT_POSITION) {
             mLeftMarkPosition = mMarginSide;
         }
-        if (mRightMarkPosition==DEFAULT_POSITION){
+        if (mRightMarkPosition == DEFAULT_POSITION) {
             mRightMarkPosition = mWidth - mMarginSide;
         }
         return mWidth;
@@ -336,13 +332,14 @@ public class TwoSideSeekBar extends View {
         super.onLayout(changed, left, top, right, bottom);
     }
 
-    public int getSingleWidth(){
+    public int getSingleWidth() {
         return mMarginSide;
     }
 
-    public int getSingleHeight(){
+    public int getSingleHeight() {
         return mHeight;
     }
+
     /**
      * 获取当前裁剪出的长度
      *
