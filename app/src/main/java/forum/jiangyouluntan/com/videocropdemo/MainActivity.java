@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private TwoSideSeekBar seekBar;
 
-    private MyAdapter adapter;
+        private MyAdapter adapter;
     private LinearLayoutManager linearLayoutManager;
     private Bitmap bitmap;
     private MediaMetadataRetriever mmr = new MediaMetadataRetriever();
@@ -127,6 +127,32 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 //        ffmpegTest();
+
+
+//        getVideoAllImage();
+    }
+
+    private void getVideoAllImage() {
+        File fileAppRoot = new File(
+                getApplicationInfo().dataDir);
+        try {
+            FfmpegController fc = new FfmpegController(
+                    MainActivity.this, fileAppRoot);
+            Log.d("getVideoAllImage", "  processComplete start time=====>" + System.currentTimeMillis());
+            fc.getAllVideoImage(FILE_PATH, DIR_PATH + "out％d.png", new ShellUtils.ShellCallback() {
+                @Override
+                public void shellOut(String shellLine) {
+                    Log.e("getVideoAllImage", "shellLine===>" + shellLine);
+                }
+
+                @Override
+                public void processComplete(int exitValue) {
+                    Log.d("getVideoAllImage", "  processComplete end time=====>" + System.currentTimeMillis());
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -359,7 +385,7 @@ public class MainActivity extends AppCompatActivity {
 //                        });
 //                    }
 //                });
-                fc.getVideoImage2(position, FILE_PATH, targetFile.getPath(), new ShellUtils.ShellCallback() {
+                fc.getVideoImage3(position, FILE_PATH, targetFile.getPath(), new ShellUtils.ShellCallback() {
 
                     @Override
                     public void shellOut(String shellLine) {

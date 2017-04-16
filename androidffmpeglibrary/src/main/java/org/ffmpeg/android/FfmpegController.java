@@ -271,13 +271,15 @@ public class FfmpegController {
     }
 
     /**
-     * [vv -ss 155,700 -i /storage/sdcard0/ddpaiSDK/video/video.M6.00e00100b534/L_20170331113817_174_174.mp4 -vframes 1 -sws_flags neighbor -s 96x54 -f image2 -y /storage/sdcard0/ZongHeng/temp//L_20170331113817_174_174_crop_temp/crop_09.jpeg]
+     * [vv -ss 155,700 -i input.mp4 -vframes 1 -sws_flags neighbor -s 96x54 -f image2 -y output.jpeg]
      */
-    public void getVideoImage2(float time, String file_path, String file_path2, ShellCallback sc) throws  Exception {
+    public void getVideoImage2(float time, String file_path, String file_path2, ShellCallback sc) throws Exception {
         ArrayList<String> cmd = new ArrayList<String>();
         cmd.add(mFfmpegBin);
         cmd.add("-ss");
         cmd.add("" + time);
+        cmd.add("-threads");//多线程的运算，充分利用多核cpu
+        cmd.add("" + getNumCores());
         cmd.add("-i");
         cmd.add(file_path);
         cmd.add("-vframes");
@@ -289,10 +291,46 @@ public class FfmpegController {
         cmd.add("-f");
         cmd.add("image2");
         cmd.add("-y");
-        cmd.add("file_path2");
+        cmd.add(file_path2);
         Log.d("cmd", "cmd:" + cmd);
         execFFMPEG(cmd, sc);
     }
+
+
+    /**
+     * ffmpeg -i input.flv -vf fps = 1 out％d.png
+     */
+    public void getAllVideoImage(String file_path,String file_path2, ShellCallback sc) throws Exception {
+        ArrayList<String> cmd = new ArrayList<String>();
+        cmd.add(mFfmpegBin);
+        cmd.add("-i");
+        cmd.add(file_path);
+        cmd.add("-vf");
+        cmd.add("fps = 1");
+        cmd.add(file_path2);
+        Log.d("cmd", "cmd:" + cmd);
+        execFFMPEG(cmd, sc);
+    }
+
+    /**
+     * ffmpeg -ss 00:23:00 -i Mononoke.Hime.mkv -frames：v 1 out1.jpg
+     */
+    public void getVideoImage3(float time, String file_path, String file_path2, ShellCallback sc) throws Exception {
+        ArrayList<String> cmd = new ArrayList<String>();
+        cmd.add(mFfmpegBin);
+        cmd.add("-ss");
+        cmd.add("" + time);
+        cmd.add("-i");
+        cmd.add(file_path);
+        cmd.add("-s");
+        cmd.add("96x54");
+        cmd.add("-frames:v");
+        cmd.add("1");
+        cmd.add(file_path2);
+        Log.d("cmd", "cmd:" + cmd);
+        execFFMPEG(cmd, sc);
+    }
+
 
     /**
      * ffmpeg -i 1.mp4 -ss 00:00:03 -vframes 1 -f image2 -s 240x240  bsdb.jpg
