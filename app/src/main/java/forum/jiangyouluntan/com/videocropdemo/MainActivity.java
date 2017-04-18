@@ -1,6 +1,8 @@
 package forum.jiangyouluntan.com.videocropdemo;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -11,6 +13,7 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,13 +24,19 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
+import com.github.hiteshsondhi88.libffmpeg.FFmpegExecuteResponseHandler;
+import com.github.hiteshsondhi88.libffmpeg.LoadBinaryResponseHandler;
+import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
 
 import org.ffmpeg.android.FfmpegController;
 import org.ffmpeg.android.ShellUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
@@ -40,24 +49,28 @@ import forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView;
 public class MainActivity extends AppCompatActivity {
     //   /Movies/fffff.mp4
     //   /ZongHeng/temp/video/del_1492062006409.mp4
-    private static final String ROOT_PATH = "/storage/sdcard0/相机";
-    private final String FILE_PATH = getInnerSDCardPath() + "/ZongHeng/temp/video/del_1492062006409.mp4";
+    //  /ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4
+    private final String ROOT_PATH = getInnerSDCardPath() + "/相机";
+    //    private final String FILE_PATH = getInnerSDCardPath() + "/ZongHeng/temp/video/del_1492062006409.mp4";
+    private final String FILE_PATH = getInnerSDCardPath() + "/ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4";
     //    private static final String FILE_PATH = ROOT_PATH+"/video_20170413_085109.mp4";
-    private static final String TARGET_FILE_PATH = ROOT_PATH + "/cc.mp4";
-    private static final String DIR_PATH = ROOT_PATH + "/images/";
+    private final String TARGET_FILE_PATH = ROOT_PATH + "/cc.mp4";
+    private final String DIR_PATH = ROOT_PATH + "/images/";
 
-    private static final String FILE_PATH_2 = ROOT_PATH + "/aa.jpg";
+    private final String FILE_PATH_2 = ROOT_PATH + "/aa.jpg";
 
 //    private static final String FILE_PATH = "/storage/emulated/0/DCIM/Camera/VID_20170411_145656.mp4";
 //    private static final String TARGET_FILE_PATH = "/storage/emulated/0/DCIM/Camera/cc.mp4";
 //    private static final String DIR_PATH = "/storage/emulated/0/DCIM/Camera/images2/";
 //    private static final String FILE_PATH_2 = "/storage/emulated/0/DCIM/Camera/aa.jpg";
 
+    FFmpeg ffmpeg;
+
     private TextureVideoView videoView;
     private RecyclerView recyclerView;
     private TwoSideSeekBar seekBar;
 
-        private MyAdapter adapter;
+    private MyAdapter adapter;
     private LinearLayoutManager linearLayoutManager;
     private Bitmap bitmap;
     private MediaMetadataRetriever mmr = new MediaMetadataRetriever();
@@ -66,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
     private float mCurrentY = 0;
     private String videoDuration;
     private Queue<CropImageEntity> queue;
+
+    private List<VideoImageEntity> infos;
 
 
     Callable<Bitmap> callable = new Callable<Bitmap>() {
@@ -92,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
         videoView = (TextureVideoView) findViewById(R.id.videoView);
         seekBar = (TwoSideSeekBar) findViewById(R.id.seekBar);
         Log.d("root dir", "root dir====>" + Environment.getExternalStorageDirectory().getPath());
+        loadFFMpegBinary();
         queue = new LinkedList<>();
         File file = new File(FILE_PATH);
         if (!file.exists()) {
@@ -103,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         executor = Executors.newFixedThreadPool(1);
         initVideoSize();
 //        executor.execute(futureTask);
-        adapter = new MyAdapter();
+
         initRecyclerView();
         mCurrentX = dp2px(this, 30);
         seekBar.setOnVideoStateChangeListener(new TwoSideSeekBar.OnVideoStateChangeListener() {
@@ -130,7 +146,55 @@ public class MainActivity extends AppCompatActivity {
 
 
 //        getVideoAllImage();
+//        getFrameWithMediaMetadataRetriever();
     }
+
+    private void loadFFMpegBinary() {
+        try {
+            ffmpeg = FFmpeg.getInstance(this);
+            ffmpeg.loadBinary(new LoadBinaryResponseHandler() {
+                @Override
+                public void onStart() {
+                    super.onStart();
+                }
+
+                @Override
+                public void onSuccess() {
+                    super.onSuccess();
+                }
+
+                @Override
+                public void onFinish() {
+                    super.onFinish();
+                }
+
+                @Override
+                public void onFailure() {
+                    showUnsupportedExceptionDialog();
+                }
+            });
+        } catch (FFmpegNotSupportedException e) {
+            showUnsupportedExceptionDialog();
+        }
+    }
+
+    private void showUnsupportedExceptionDialog() {
+        new AlertDialog.Builder(this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle(getString(R.string.device_not_supported))
+                .setMessage(getString(R.string.device_not_supported_message))
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        MainActivity.this.finish();
+                    }
+                })
+                .create()
+                .show();
+
+    }
+
 
     private void getVideoAllImage() {
         File fileAppRoot = new File(
@@ -157,6 +221,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void initRecyclerView() {
+        infos = new ArrayList<>();
+        for (int i = 0; i < Integer.parseInt(videoDuration) / 1000 + 2; i++) {
+            infos.add(new VideoImageEntity());
+        }
+        adapter = new MyAdapter();
         recyclerView.setAdapter(adapter);
         linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -270,9 +339,6 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    public void getImage(final ImageView imageView, final int position) {
-        executor.execute(new MyImageCropRunnable(imageView, position));
-    }
 
     class MyAdapter extends RecyclerView.Adapter {
 
@@ -280,6 +346,7 @@ public class MainActivity extends AppCompatActivity {
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             return new MyViewHolder(LayoutInflater.from(MainActivity.this).inflate(R.layout.item, parent, false));
         }
+
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
@@ -290,19 +357,32 @@ public class MainActivity extends AppCompatActivity {
                 viewHolder.imvCrop.setImageBitmap(null);
             } else {
                 viewHolder.imvCrop.setImageBitmap(null);
-                getImage(viewHolder.imvCrop, position);
+                VideoImageEntity info = infos.get(position);
+                if (!TextUtils.isEmpty(info.getImagePath()) && new File(info.getImagePath()).exists()) {//如果图片路径为空或者路径图片不存在
+                    Log.e("onBindViewHolder", "position=>" + position+"图片存在");
+
+                    Glide.with(MainActivity.this)
+                            .load("file://" + info.getImagePath())
+                            .centerCrop()
+                            .into(viewHolder.imvCrop);
+                } else {//存在
+                    Log.e("onBindViewHolder", "position=>" + position+"图片不存在");
+//                    getImage(viewHolder.imvCrop, position);
+                    getFFmpegImage(viewHolder.imvCrop,position);
+
+                }
             }
         }
 
         @Override
         public int getItemCount() {
-            return Integer.parseInt(videoDuration) / 1000 + 2;
+            return infos.size();
         }
 
         @Override
         public void onViewRecycled(RecyclerView.ViewHolder holder) {
             super.onViewRecycled(holder);
-            int position = holder.getAdapterPosition();
+//            int position = holder.getAdapterPosition();
         }
 
         class MyViewHolder extends RecyclerView.ViewHolder {
@@ -314,6 +394,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
 
     private int getCurrentTime(float x, float y) {
         int position = recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(x, y));
@@ -335,6 +417,71 @@ public class MainActivity extends AppCompatActivity {
         return (int) (dpValue * scale + 0.5f);
     }
 
+    public void getImage(final ImageView imageView, final int position) {
+//        executor.execute(new MyImageCropRunnable(imageView, position));
+//        MyThreadPool.post(new MyImageCropRunnable(imageView,position));
+        executor.execute(new MyFFMpegRunnable(imageView, position));
+
+    }
+
+    private void getFFmpegImage(final ImageView imageView, final int position) {
+        try {
+            File fileDir = new File(DIR_PATH);
+            if (!fileDir.exists()) {
+                fileDir.mkdirs();
+            }
+            final File targetFile = new File(DIR_PATH + position + ".jpg");
+            Log.d("position", "position====>" + position);
+            if (targetFile.exists()) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        imageView.setImageBitmap(BitmapFactory.decodeFile(targetFile.getPath()));
+                    }
+                });
+                return;
+            }
+            String ffpmegString = "-ss " + position + " -i " + FILE_PATH + " -s 80*40 -frames:v 1 " + targetFile.getPath();
+            Log.e("getFFmpegImages", "ffpmegString==>" + ffpmegString);
+            String[] command = ffpmegString.split(" ");
+            ffmpeg.execute(command, new FFmpegExecuteResponseHandler() {
+                @Override
+                public void onStart() {
+
+                }
+
+                @Override
+                public void onFinish() {
+
+                }
+
+                @Override
+                public void onSuccess(String message) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            infos.get(position).setImagePath("" + targetFile.getPath());
+//                            adapter.notifyItemChanged(position);
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+
+                @Override
+                public void onProgress(String message) {
+
+                }
+
+                @Override
+                public void onFailure(String message) {
+
+                }
+            });
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     class MyImageCropRunnable implements Runnable {
 
         ImageView imageView;
@@ -350,7 +497,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 File fileDir = new File(DIR_PATH);
                 if (!fileDir.exists()) {
-                    fileDir.mkdir();
+                    fileDir.mkdirs();
                 }
                 final File targetFile = new File(DIR_PATH + position + ".jpg");
                 Log.d("position", "position====>" + position);
@@ -415,6 +562,85 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
+    class MyFFMpegRunnable implements Runnable {
+
+        ImageView imageView;
+        int position;
+
+        public MyFFMpegRunnable(ImageView imageView, int position) {
+            this.imageView = imageView;
+            this.position = position;
+        }
+
+        @Override
+        public void run() {
+            try {
+                File fileDir = new File(DIR_PATH);
+                if (!fileDir.exists()) {
+                    fileDir.mkdirs();
+                }
+                final File targetFile = new File(DIR_PATH + position + ".jpg");
+                Log.d("position", "position====>" + position);
+                if (targetFile.exists()) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            imageView.setImageBitmap(BitmapFactory.decodeFile(targetFile.getPath()));
+                        }
+                    });
+                    return;
+                }
+                File fileAppRoot = new File(
+                        getApplicationInfo().dataDir);
+                FfmpegController fc = new FfmpegController(
+                        MainActivity.this, fileAppRoot);
+                Log.d("cropimage", "position====>" + position + "  cropImage start time=====>" + System.currentTimeMillis());
+
+                String ffpmegString = "-ss " + position + " -i " + FILE_PATH + " -s 80*40 -frames:v 1 " + targetFile.getPath() + ".jpg";
+                Log.e("getFFmpegImages", "ffpmegString==>" + ffpmegString);
+                String[] command = ffpmegString.split(" ");
+                ffmpeg.execute(command, new FFmpegExecuteResponseHandler() {
+                    @Override
+                    public void onStart() {
+
+                    }
+
+                    @Override
+                    public void onFinish() {
+
+                    }
+
+                    @Override
+                    public void onSuccess(String message) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                infos.get(position).setImagePath("" + targetFile.getPath());
+                                adapter.notifyItemChanged(position);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onProgress(String message) {
+
+                    }
+
+                    @Override
+                    public void onFailure(String message) {
+
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     /**
      * 获取内置SD卡路径

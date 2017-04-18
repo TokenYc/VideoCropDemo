@@ -32,5 +32,6 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.3.1'
     testCompile 'junit:junit:4.12'
     compile project(':androidffmpeglibrary')
+    compile project(':FFmpegAndroid')
     compile 'com.github.bumptech.glide:glide:3.7.0'
 }

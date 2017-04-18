@@ -314,6 +314,7 @@ public class FfmpegController {
 
     /**
      * ffmpeg -ss 00:23:00 -i Mononoke.Hime.mkv -frames：v 1 out1.jpg
+     * ffmpeg -ss 00:23:00 -i Mononoke.Hime.mkv -s 96*54 -frames:v 1 out1.jpg
      */
     public void getVideoImage3(float time, String file_path, String file_path2, ShellCallback sc) throws Exception {
         ArrayList<String> cmd = new ArrayList<String>();
