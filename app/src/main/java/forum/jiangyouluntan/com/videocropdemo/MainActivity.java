@@ -52,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
     //  /ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4
     private final String ROOT_PATH = getInnerSDCardPath() + "/相机";
     //    private final String FILE_PATH = getInnerSDCardPath() + "/ZongHeng/temp/video/del_1492062006409.mp4";
-    private final String FILE_PATH = getInnerSDCardPath() + "/ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4";
+    private final String FILE_PATH = getInnerSDCardPath() + "/Movies/fffff.mp4";
+    //    private final String FILE_PATH = getInnerSDCardPath() + "/ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4";
     //    private static final String FILE_PATH = ROOT_PATH+"/video_20170413_085109.mp4";
     private final String TARGET_FILE_PATH = ROOT_PATH + "/cc.mp4";
     private final String DIR_PATH = ROOT_PATH + "/images/";
@@ -223,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
     private void initRecyclerView() {
         infos = new ArrayList<>();
         for (int i = 0; i < Integer.parseInt(videoDuration) / 1000 + 2; i++) {
-            infos.add(new VideoImageEntity());
+            infos.add(new VideoImageEntity( DIR_PATH + i + ".jpg"));
         }
         adapter = new MyAdapter();
         recyclerView.setAdapter(adapter);
@@ -359,16 +360,23 @@ public class MainActivity extends AppCompatActivity {
                 viewHolder.imvCrop.setImageBitmap(null);
                 VideoImageEntity info = infos.get(position);
                 if (!TextUtils.isEmpty(info.getImagePath()) && new File(info.getImagePath()).exists()) {//如果图片路径为空或者路径图片不存在
-                    Log.e("onBindViewHolder", "position=>" + position+"图片存在");
+                    Log.e("onBindViewHolder", "position=>" + position + "图片存在");
 
                     Glide.with(MainActivity.this)
                             .load("file://" + info.getImagePath())
                             .centerCrop()
                             .into(viewHolder.imvCrop);
-                } else {//存在
-                    Log.e("onBindViewHolder", "position=>" + position+"图片不存在");
-//                    getImage(viewHolder.imvCrop, position);
-                    getFFmpegImage(viewHolder.imvCrop,position);
+                } else {//不存在
+                    File file = new File(DIR_PATH + position + ".jpg");
+                    if (file.exists()) {//文件夹中存在相同名字的图片直接加载
+                        Log.e("onBindViewHolder", "position=>" + position + "info图片不存在,SD卡存在");
+                        viewHolder.imvCrop.setImageBitmap(BitmapFactory.decodeFile(file.getPath()));
+                    } else {
+                        Log.e("onBindViewHolder", "position=>" + position + "图片不存在");
+                    getImage(viewHolder.imvCrop, position);
+//                        getFFmpegImage(viewHolder.imvCrop, position);
+                    }
+
 
                 }
             }
@@ -396,7 +404,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     private int getCurrentTime(float x, float y) {
         int position = recyclerView.getChildAdapterPosition(recyclerView.findChildViewUnder(x, y));
         Log.d("currentTime", "currentTime====>" + (position - 1) * 1000);
@@ -419,8 +426,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void getImage(final ImageView imageView, final int position) {
 //        executor.execute(new MyImageCropRunnable(imageView, position));
-//        MyThreadPool.post(new MyImageCropRunnable(imageView,position));
-        executor.execute(new MyFFMpegRunnable(imageView, position));
+        MyThreadPool.post(new MyImageCropRunnable(imageView,position));
+//        executor.execute(new MyFFMpegRunnable(imageView, position));
 
     }
 
@@ -441,7 +448,7 @@ public class MainActivity extends AppCompatActivity {
                 });
                 return;
             }
-            String ffpmegString = "-ss " + position + " -i " + FILE_PATH + " -s 80*40 -frames:v 1 " + targetFile.getPath();
+            String ffpmegString = "-ss " + getTime(position * 1000L) + " -i " + FILE_PATH + " -s 80*40 -frames:v 1 " + targetFile.getPath();
             Log.e("getFFmpegImages", "ffpmegString==>" + ffpmegString);
             String[] command = ffpmegString.split(" ");
             ffmpeg.execute(command, new FFmpegExecuteResponseHandler() {
@@ -452,7 +459,6 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onFinish() {
-
                 }
 
                 @Override
@@ -469,15 +475,21 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onProgress(String message) {
-
+                    Log.e("onProgress", ""+message);
                 }
 
                 @Override
-                public void onFailure(String message) {
+                public void onFailure(final String message) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.e("onFailure", ""+message);
+                        }
+                    });
 
                 }
             });
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -545,12 +557,12 @@ public class MainActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Glide.with(MainActivity.this)
-                                        .load("file://" + targetFile.getPath())
-                                        .centerCrop()
-//                                        .crossFade()
-                                        .into(imageView);
-//                                imageView.setImageBitmap(BitmapFactory.decodeFile(targetFile.getPath()));
+                                infos.get(position).setImagePath(targetFile.getPath());
+                                adapter.notifyDataSetChanged();
+//                                Glide.with(MainActivity.this)
+//                                        .load("file://" + targetFile.getPath())
+//                                        .centerCrop()
+//                                        .into(imageView);
                             }
                         });
                     }
@@ -650,4 +662,65 @@ public class MainActivity extends AppCompatActivity {
     public String getInnerSDCardPath() {
         return Environment.getExternalStorageDirectory().getPath();
     }
+
+
+//    public String getTime(int position) {
+//        int second = 60;
+//        int tenMin = 10 * 60;
+//        if (position < 10) {
+//            return "00:00:0" + position;
+//        }
+//        if (position < second) {
+//            return "00:00:" + position;
+//        }
+//
+//        return "" + position;
+//    }
+
+
+    /**
+     * 毫秒转化时分秒毫秒
+     */
+    public static String getTime(Long ms) {
+        Integer ss = 1000;
+        Integer mi = ss * 60;
+        Integer hh = mi * 60;
+        Integer dd = hh * 24;
+
+        Long day = ms / dd;
+        Long hour = (ms - day * dd) / hh;
+        Long minute = (ms - day * dd - hour * hh) / mi;
+        Long second = (ms - day * dd - hour * hh - minute * mi) / ss;
+
+        StringBuffer sb = new StringBuffer();
+        if (hour > 0) {
+            if (hour > 9) {
+                sb.append(hour + ":");
+            } else {
+                sb.append("0" + hour + ":");
+            }
+        } else {
+            sb.append("00:");
+        }
+        if (minute > 0) {
+            if (minute > 9) {
+                sb.append(minute + ":");
+            } else {
+                sb.append("0" + minute + ":");
+            }
+        } else {
+            sb.append("00:");
+        }
+        if (second > 0) {
+            if (second > 9) {
+                sb.append(second);
+            } else {
+                sb.append("0" + second);
+            }
+        } else {
+            sb.append("00");
+        }
+        return sb.toString();
+    }
+
 }

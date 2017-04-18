@@ -1,6 +1,7 @@
 package com.github.hiteshsondhi88.libffmpeg;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import java.lang.reflect.Array;
@@ -52,6 +53,7 @@ public class FFmpeg implements FFmpegInterface {
         if (!TextUtils.isEmpty(cpuArchNameFromAssets)) {
             ffmpegLoadLibraryAsyncTask = new FFmpegLoadLibraryAsyncTask(context, cpuArchNameFromAssets, ffmpegLoadBinaryResponseHandler);
             ffmpegLoadLibraryAsyncTask.execute();
+//            ffmpegExecuteAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
             throw new FFmpegNotSupportedException("Device not supported");
         }
@@ -59,9 +61,9 @@ public class FFmpeg implements FFmpegInterface {
 
     @Override
     public void execute(Map<String, String> environvenmentVars, String[] cmd, FFmpegExecuteResponseHandler ffmpegExecuteResponseHandler) throws FFmpegCommandAlreadyRunningException {
-        if (ffmpegExecuteAsyncTask != null && !ffmpegExecuteAsyncTask.isProcessCompleted()) {
-            throw new FFmpegCommandAlreadyRunningException("FFmpeg command is already running, you are only allowed to run single command at a time");
-        }
+//        if (ffmpegExecuteAsyncTask != null && !ffmpegExecuteAsyncTask.isProcessCompleted()) {
+//            throw new FFmpegCommandAlreadyRunningException("FFmpeg command is already running, you are only allowed to run single command at a time");
+//        }
         if (cmd.length != 0) {
             String[] ffmpegBinary = new String[] { FileUtils.getFFmpeg(context, environvenmentVars) };
             String[] command = concatenate(ffmpegBinary, cmd);
