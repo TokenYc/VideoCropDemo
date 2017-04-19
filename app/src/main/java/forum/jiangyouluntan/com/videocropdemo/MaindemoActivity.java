@@ -226,6 +226,10 @@ public class MaindemoActivity extends AppCompatActivity {
 
     private void initRecyclerView() {
         infos = new ArrayList<>();
+        File file = new File(DIR_PATH);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
         for (int i = 0; i < Integer.parseInt(videoDuration) / 1000 + 2; i++) {
             infos.add(new VideoImageEntity( DIR_PATH + i + ".jpg"));
         }

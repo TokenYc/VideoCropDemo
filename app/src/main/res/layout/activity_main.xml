@@ -25,5 +25,12 @@
         android:layout_height="wrap_content"
         android:textAllCaps="false"
         android:text="FFmpegAndroidLibraryGetAllImageActivity" />
+    <Button
+        android:id="@+id/btn_MediaCodecActivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:text="MediaCodecActivity" />
+
 
 </LinearLayout>

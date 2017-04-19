@@ -197,7 +197,9 @@ public class TwoSideSeekBar extends View {
             @Override
             public void onAnimationRepeat(Animator animation) {
                 Log.d(Tag, "onAnimationRepeat=====>");
-                mVideoStateChangeListener.onEnd();
+                if (mVideoStateChangeListener!=null){
+                    mVideoStateChangeListener.onEnd();
+                }
             }
         });
         if (mIndicatorAnimator != null) {

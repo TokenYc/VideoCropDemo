@@ -11,7 +11,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Button btn_FFmpegAndroidLibraryActivity
             ,btn_androidffmpeglibrary
-            ,btn_FFmpegAndroidLibraryGetAllImageActivity;
+            ,btn_FFmpegAndroidLibraryGetAllImageActivity
+            ,btn_MediaCodecActivity;
 
 
     @Override
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_FFmpegAndroidLibraryActivity = (Button) findViewById(R.id.btn_FFmpegAndroidLibraryActivity);
         btn_androidffmpeglibrary = (Button) findViewById(R.id.btn_androidffmpeglibrary);
         btn_FFmpegAndroidLibraryGetAllImageActivity = (Button) findViewById(R.id.btn_FFmpegAndroidLibraryGetAllImageActivity);
-
+        btn_MediaCodecActivity = (Button) findViewById(R.id.btn_MediaCodecActivity);
 
     }
 
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_FFmpegAndroidLibraryActivity.setOnClickListener(this);
         btn_androidffmpeglibrary.setOnClickListener(this);
         btn_FFmpegAndroidLibraryGetAllImageActivity.setOnClickListener(this);
+        btn_MediaCodecActivity.setOnClickListener(this);
     }
 
     @Override
@@ -50,6 +52,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_FFmpegAndroidLibraryGetAllImageActivity:
                 startActivity(new Intent(this, FFmpegAndroidLibraryGetAllImageActivity.class));
                 break;
+            case R.id.btn_MediaCodecActivity:
+                startActivity(new Intent(this, MediaCodecActivity.class));
+                break;
+
         }
     }
 }
