@@ -21,6 +21,7 @@
         </activity>
         <activity android:name=".FFmpegAndroidLibraryActivity" />
         <activity android:name=".AndroidFFmpegLibraryActivity"/>
+        <activity android:name=".FFmpegAndroidLibraryGetAllImageActivity"/>
     </application>
 
 </manifest>

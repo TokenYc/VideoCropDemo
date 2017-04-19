@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,27 +26,18 @@ import com.bumptech.glide.Glide;
 import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
 import com.github.hiteshsondhi88.libffmpeg.FFmpegExecuteResponseHandler;
 import com.github.hiteshsondhi88.libffmpeg.LoadBinaryResponseHandler;
+import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
-
-import org.ffmpeg.android.FfmpegController;
-import org.ffmpeg.android.ShellUtils;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 
 import forum.jiangyouluntan.com.videocropdemo.TwoSideSeekBar.TwoSideSeekBar;
-import forum.jiangyouluntan.com.videocropdemo.entity.CropImageEntity;
 import forum.jiangyouluntan.com.videocropdemo.entity.VideoImageEntity;
 import forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView;
 
-public class FFmpegAndroidLibraryActivity extends AppCompatActivity {
+public class FFmpegAndroidLibraryGetAllImageActivity extends AppCompatActivity {
     //   /Movies/fffff.mp4
     //   /ZongHeng/temp/video/del_1492062006409.mp4
     //  /ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4
@@ -120,11 +110,63 @@ public class FFmpegAndroidLibraryActivity extends AppCompatActivity {
                 videoView.seekTo(getCurrentTime(mCurrentX, mCurrentY));
             }
         });
-//        ffmpegTest();
+        getVideoAllImage();
+    }
 
 
-//        getVideoAllImage();
-//        getFrameWithMediaMetadataRetriever();
+    private void getVideoAllImage() {
+        try {
+            for (int i = 0; i < infos.size(); i++) {
+                if (!new File(infos.get(i).getImagePath()).exists()) {//图片不存在
+                    String ffpmegString = "-ss " + getTime(i * 1000L) + " -i " + FILE_PATH + " -threads 8 -s 80*40 -frames:v 1 " + infos.get(i).getImagePath();
+                    Log.e("getVideoAllImage", "ffpmegString==>" + ffpmegString);
+                    String[] command = ffpmegString.split(" ");
+                    ffmpeg.execute(command, new FFmpegExecuteResponseHandler() {
+                        @Override
+                        public void onStart() {
+                            Log.e("onStart", "onStart");
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            Log.e("onFinish", "onFinish");
+                        }
+
+                        @Override
+                        public void onSuccess(String message) {
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Log.e("onSuccess", "onSuccess");
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onProgress(String message) {
+                            Log.e("onProgress", "" + message);
+                        }
+
+                        @Override
+                        public void onFailure(final String message) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Log.e("onFailure", "" + message);
+                                }
+                            });
+
+                        }
+                    });
+
+
+                }
+            }
+        } catch (FFmpegCommandAlreadyRunningException e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadFFMpegBinary() {
@@ -165,7 +207,7 @@ public class FFmpegAndroidLibraryActivity extends AppCompatActivity {
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        FFmpegAndroidLibraryActivity.this.finish();
+                        FFmpegAndroidLibraryGetAllImageActivity.this.finish();
                     }
                 })
                 .create()
@@ -175,6 +217,10 @@ public class FFmpegAndroidLibraryActivity extends AppCompatActivity {
 
     private void initRecyclerView() {
         infos = new ArrayList<>();
+        File file = new File(DIR_PATH);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
         for (int i = 0; i < Integer.parseInt(videoDuration) / 1000 + 2; i++) {
             infos.add(new VideoImageEntity(DIR_PATH + i + ".jpg"));
         }
@@ -226,7 +272,7 @@ public class FFmpegAndroidLibraryActivity extends AppCompatActivity {
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new MyViewHolder(LayoutInflater.from(FFmpegAndroidLibraryActivity.this).inflate(R.layout.item, parent, false));
+            return new MyViewHolder(LayoutInflater.from(FFmpegAndroidLibraryGetAllImageActivity.this).inflate(R.layout.item, parent, false));
         }
 
 
@@ -243,7 +289,7 @@ public class FFmpegAndroidLibraryActivity extends AppCompatActivity {
                 if (!TextUtils.isEmpty(info.getImagePath()) && new File(info.getImagePath()).exists()) {//如果图片路径为空或者路径图片不存在
                     Log.e("onBindViewHolder", "position=>" + position + "图片存在");
 
-                    Glide.with(FFmpegAndroidLibraryActivity.this)
+                    Glide.with(FFmpegAndroidLibraryGetAllImageActivity.this)
                             .load("file://" + info.getImagePath())
                             .centerCrop()
                             .into(viewHolder.imvCrop);
@@ -254,7 +300,7 @@ public class FFmpegAndroidLibraryActivity extends AppCompatActivity {
                         viewHolder.imvCrop.setImageBitmap(BitmapFactory.decodeFile(file.getPath()));
                     } else {
                         Log.e("onBindViewHolder", "position=>" + position + "图片不存在");
-                        getFFmpegImage(viewHolder.imvCrop, position);
+//                        getFFmpegImage(viewHolder.imvCrop, position);
                     }
 
 
@@ -313,8 +359,7 @@ public class FFmpegAndroidLibraryActivity extends AppCompatActivity {
                 });
                 return;
             }
-            String ffpmegString = "-ss " + getTime(position * 1000L) + " -i " + FILE_PATH + " -s 40*20-frames:v 1 " + targetFile.getPath();
-//            String ffpmegString = "-ss " + getTime(position * 1000L) + " -i " + FILE_PATH + " -s 40*20 -f image2 -y " + targetFile.getPath();
+            String ffpmegString = "-ss " + getTime(position * 1000L) + " -i " + FILE_PATH + " -s 80*40 -frames:v 1 " + targetFile.getPath();
             Log.e("getFFmpegImages", "ffpmegString==>" + ffpmegString);
             String[] command = ffpmegString.split(" ");
             ffmpeg.execute(command, new FFmpegExecuteResponseHandler() {
@@ -420,7 +465,7 @@ public class FFmpegAndroidLibraryActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (videoView!=null){
+        if (videoView != null) {
             videoView.pause();
         }
     }
@@ -428,7 +473,7 @@ public class FFmpegAndroidLibraryActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if (videoView!=null){
+        if (videoView != null) {
             videoView.stop();
         }
     }
@@ -436,7 +481,7 @@ public class FFmpegAndroidLibraryActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (ffmpeg!=null){
+        if (ffmpeg != null && ffmpeg.isFFmpegCommandRunning()) {
             ffmpeg.killRunningProcesses();
         }
     }
