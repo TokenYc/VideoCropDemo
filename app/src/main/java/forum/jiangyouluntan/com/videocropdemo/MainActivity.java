@@ -47,6 +47,7 @@ import forum.jiangyouluntan.com.videocropdemo.TwoSideSeekBar.TwoSideSeekBar;
 import forum.jiangyouluntan.com.videocropdemo.entity.CropImageEntity;
 import forum.jiangyouluntan.com.videocropdemo.entity.VideoImageEntity;
 import forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView;
+import forum.jiangyouluntan.com.videocropdemo.utils.MyThreadPool;
 
 public class MainActivity extends AppCompatActivity {
     //   /Movies/fffff.mp4

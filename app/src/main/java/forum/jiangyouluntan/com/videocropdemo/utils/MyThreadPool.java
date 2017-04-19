@@ -1,4 +1,4 @@
-package forum.jiangyouluntan.com.videocropdemo;
+package forum.jiangyouluntan.com.videocropdemo.utils;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;

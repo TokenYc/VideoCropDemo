@@ -1,4 +1,4 @@
-package forum.jiangyouluntan.com.videocropdemo;
+package forum.jiangyouluntan.com.videocropdemo.utils;
 
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
