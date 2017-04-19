@@ -116,9 +116,10 @@ public class FFmpegAndroidLibraryGetAllImageActivity extends AppCompatActivity {
 
     private void getVideoAllImage() {
         try {
+
             for (int i = 0; i < infos.size(); i++) {
                 if (!new File(infos.get(i).getImagePath()).exists()) {//图片不存在
-                    String ffpmegString = "-ss " + getTime(i * 1000L) + " -i " + FILE_PATH + " -threads 8 -s 80*40 -frames:v 1 " + infos.get(i).getImagePath();
+                    String ffpmegString = "-ss " + getTime(i * 1000L) + " -i " + FILE_PATH + " -s 80*40 -frames:v 1 " + infos.get(i).getImagePath();
                     Log.e("getVideoAllImage", "ffpmegString==>" + ffpmegString);
                     String[] command = ffpmegString.split(" ");
                     ffmpeg.execute(command, new FFmpegExecuteResponseHandler() {
@@ -359,7 +360,7 @@ public class FFmpegAndroidLibraryGetAllImageActivity extends AppCompatActivity {
                 });
                 return;
             }
-            String ffpmegString = "-ss " + getTime(position * 1000L) + " -i " + FILE_PATH + " -s 80*40 -frames:v 1 " + targetFile.getPath();
+            String ffpmegString = "-ss " + getTime(position * 1000L) + " -i " + FILE_PATH + " -s 40*20 -frames:v 1 " + targetFile.getPath();
             Log.e("getFFmpegImages", "ffpmegString==>" + ffpmegString);
             String[] command = ffpmegString.split(" ");
             ffmpeg.execute(command, new FFmpegExecuteResponseHandler() {
@@ -481,7 +482,7 @@ public class FFmpegAndroidLibraryGetAllImageActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (ffmpeg != null && ffmpeg.isFFmpegCommandRunning()) {
+        if (ffmpeg != null ) {
             ffmpeg.killRunningProcesses();
         }
     }

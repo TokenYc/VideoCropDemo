@@ -313,7 +313,7 @@ public class FFmpegAndroidLibraryActivity extends AppCompatActivity {
                 });
                 return;
             }
-            String ffpmegString = "-ss " + getTime(position * 1000L) + " -i " + FILE_PATH + " -s 40*20-frames:v 1 " + targetFile.getPath();
+            String ffpmegString = "-ss " + getTime(position * 1000L) + " -i " + FILE_PATH + " -s 40*20 -frames:v 1 " + targetFile.getPath();
 //            String ffpmegString = "-ss " + getTime(position * 1000L) + " -i " + FILE_PATH + " -s 40*20 -f image2 -y " + targetFile.getPath();
             Log.e("getFFmpegImages", "ffpmegString==>" + ffpmegString);
             String[] command = ffpmegString.split(" ");
