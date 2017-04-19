@@ -9,7 +9,7 @@ import android.widget.Button;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
 
-    private Button btn_FFmpegAndroidLibraryActivity;
+    private Button btn_FFmpegAndroidLibraryActivity,btn_androidffmpeglibrary;
 
 
     @Override
@@ -24,10 +24,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initView() {
         btn_FFmpegAndroidLibraryActivity = (Button) findViewById(R.id.btn_FFmpegAndroidLibraryActivity);
+        btn_androidffmpeglibrary = (Button) findViewById(R.id.btn_androidffmpeglibrary);
+
     }
 
     private void initListener() {
         btn_FFmpegAndroidLibraryActivity.setOnClickListener(this);
+        btn_androidffmpeglibrary.setOnClickListener(this);
     }
 
     @Override
@@ -35,6 +38,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.btn_FFmpegAndroidLibraryActivity:
                 startActivity(new Intent(this, FFmpegAndroidLibraryActivity.class));
+                break;
+            case R.id.btn_androidffmpeglibrary:
+                startActivity(new Intent(this, AndroidFFmpegLibraryActivity.class));
                 break;
 
         }

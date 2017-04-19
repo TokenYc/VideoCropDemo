@@ -13,10 +13,10 @@
         android:text="FFmpegAndroidLibraryActivity" />
 
     <Button
-        android:id="@+id/btn_"
+        android:id="@+id/btn_androidffmpeglibrary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAllCaps="false"
-        android:text="FFmpegAndroidLibraryActivity" />
+        android:text="androidffmpeglibrary" />
 
 </LinearLayout>

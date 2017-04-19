@@ -547,7 +547,7 @@ public class MaindemoActivity extends AppCompatActivity {
 //                        });
 //                    }
 //                });
-                fc.getVideoImage3(position, FILE_PATH, targetFile.getPath(), new ShellUtils.ShellCallback() {
+                fc.getVideoImage3(getTime(position*1000L), FILE_PATH, targetFile.getPath(), new ShellUtils.ShellCallback() {
 
                     @Override
                     public void shellOut(String shellLine) {
