@@ -1,4 +1,4 @@
-package forum.jiangyouluntan.com.videocropdemo;
+package forum.jiangyouluntan.com.videocropdemo.entity;
 
 import android.widget.ImageView;
 

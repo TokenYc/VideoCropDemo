@@ -44,6 +44,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
 import forum.jiangyouluntan.com.videocropdemo.TwoSideSeekBar.TwoSideSeekBar;
+import forum.jiangyouluntan.com.videocropdemo.entity.CropImageEntity;
+import forum.jiangyouluntan.com.videocropdemo.entity.VideoImageEntity;
 import forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView;
 
 public class MainActivity extends AppCompatActivity {

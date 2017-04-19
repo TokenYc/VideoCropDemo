@@ -1,4 +1,4 @@
-package forum.jiangyouluntan.com.videocropdemo;
+package forum.jiangyouluntan.com.videocropdemo.entity;
 
 /**
  * Created by Administrator on 2017/4/18.
