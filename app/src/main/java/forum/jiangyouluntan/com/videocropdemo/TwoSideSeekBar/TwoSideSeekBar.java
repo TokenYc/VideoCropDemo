@@ -3,6 +3,7 @@ package forum.jiangyouluntan.com.videocropdemo.TwoSideSeekBar;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

@@ -173,31 +173,6 @@ public class FFmpegAndroidLibraryActivity extends AppCompatActivity {
 
     }
 
-
-    private void getVideoAllImage() {
-        File fileAppRoot = new File(
-                getApplicationInfo().dataDir);
-        try {
-            FfmpegController fc = new FfmpegController(
-                    FFmpegAndroidLibraryActivity.this, fileAppRoot);
-            Log.d("getVideoAllImage", "  processComplete start time=====>" + System.currentTimeMillis());
-            fc.getAllVideoImage(FILE_PATH, DIR_PATH + "out％d.png", new ShellUtils.ShellCallback() {
-                @Override
-                public void shellOut(String shellLine) {
-                    Log.e("getVideoAllImage", "shellLine===>" + shellLine);
-                }
-
-                @Override
-                public void processComplete(int exitValue) {
-                    Log.d("getVideoAllImage", "  processComplete end time=====>" + System.currentTimeMillis());
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
     private void initRecyclerView() {
         infos = new ArrayList<>();
         for (int i = 0; i < Integer.parseInt(videoDuration) / 1000 + 2; i++) {
@@ -344,18 +319,21 @@ public class FFmpegAndroidLibraryActivity extends AppCompatActivity {
             ffmpeg.execute(command, new FFmpegExecuteResponseHandler() {
                 @Override
                 public void onStart() {
-
+                    Log.e("onStart", "onStart");
                 }
 
                 @Override
                 public void onFinish() {
+                    Log.e("onFinish", "onFinish");
                 }
 
                 @Override
                 public void onSuccess(String message) {
+
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            Log.e("onSuccess", "onSuccess");
                             infos.get(position).setImagePath("" + targetFile.getPath());
 //                            adapter.notifyItemChanged(position);
                             adapter.notifyDataSetChanged();
@@ -438,4 +416,27 @@ public class FFmpegAndroidLibraryActivity extends AppCompatActivity {
         return sb.toString();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (videoView!=null){
+            videoView.pause();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (videoView!=null){
+            videoView.stop();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (ffmpeg!=null&&ffmpeg.isFFmpegCommandRunning()){
+            ffmpeg.killRunningProcesses();
+        }
+    }
 }
