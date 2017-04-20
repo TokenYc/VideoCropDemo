@@ -12,7 +12,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btn_FFmpegAndroidLibraryActivity
             ,btn_androidffmpeglibrary
             ,btn_FFmpegAndroidLibraryGetAllImageActivity
-            ,btn_MediaCodecActivity;
+            ,btn_MediaCodecActivity
+            ,btn_MediaMetadataRetrieverActivity
+            ,btn_FFmpegMediaMetadataRetrieverActivity;
 
 
     @Override
@@ -30,7 +32,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_androidffmpeglibrary = (Button) findViewById(R.id.btn_androidffmpeglibrary);
         btn_FFmpegAndroidLibraryGetAllImageActivity = (Button) findViewById(R.id.btn_FFmpegAndroidLibraryGetAllImageActivity);
         btn_MediaCodecActivity = (Button) findViewById(R.id.btn_MediaCodecActivity);
-
+        btn_MediaMetadataRetrieverActivity= (Button) findViewById(R.id.btn_MediaMetadataRetrieverActivity);
+        btn_FFmpegMediaMetadataRetrieverActivity= (Button) findViewById(R.id.btn_FFmpegMediaMetadataRetrieverActivity);
 
     }
 
@@ -39,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_androidffmpeglibrary.setOnClickListener(this);
         btn_FFmpegAndroidLibraryGetAllImageActivity.setOnClickListener(this);
         btn_MediaCodecActivity.setOnClickListener(this);
+        btn_MediaMetadataRetrieverActivity.setOnClickListener(this);
+        btn_FFmpegMediaMetadataRetrieverActivity.setOnClickListener(this);
     }
 
     @Override
@@ -55,6 +60,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btn_MediaCodecActivity:
                 startActivity(new Intent(this, MediaCodecActivity.class));
+                break;
+            case R.id.btn_MediaMetadataRetrieverActivity:
+                startActivity(new Intent(this, MediaMetadataRetrieverActivity.class));
+                break;
+            case R.id.btn_FFmpegMediaMetadataRetrieverActivity:
+                startActivity(new Intent(this, FFmpegMediaMetadataRetrieverActivity.class));
                 break;
 
 

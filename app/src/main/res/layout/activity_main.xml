@@ -1,43 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:orientation="vertical"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
 
     <Button
         android:id="@+id/btn_FFmpegAndroidLibraryActivity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAllCaps="false"
-        android:text="FFmpegAndroidLibraryActivity" />
+        android:text="FFmpegAndroidLibraryActivity"
+        android:textAllCaps="false" />
 
     <Button
         android:id="@+id/btn_androidffmpeglibrary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAllCaps="false"
-        android:text="androidffmpeglibrary" />
+        android:text="androidffmpeglibrary"
+        android:textAllCaps="false" />
 
     <Button
         android:id="@+id/btn_FFmpegAndroidLibraryGetAllImageActivity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAllCaps="false"
-        android:text="FFmpegAndroidLibraryGetAllImageActivity" />
-    <Button
-        android:id="@+id/btn_MediaCodecActivity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAllCaps="false"
-        android:text="MediaCodecActivity" />
-
-
+        android:text="FFmpegAndroidLibraryGetAllImageActivity"
+        android:textAllCaps="false" />
 
     <Button
         android:id="@+id/btn_MediaCodecActivity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAllCaps="false"
-        android:text="MediaCodecActivity" />
+        android:text="MediaCodecActivity"
+        android:textAllCaps="false" />
+
+
+    <Button
+        android:id="@+id/btn_MediaMetadataRetrieverActivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MediaMetadataRetrieverActivity"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/btn_FFmpegMediaMetadataRetrieverActivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="FFmpegMediaMetadataRetrieverActivity"
+        android:textAllCaps="false" />
+
 </LinearLayout>
