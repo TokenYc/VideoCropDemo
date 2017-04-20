@@ -88,6 +88,8 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
 
         ffmpeg_mmr = new FFmpegMediaMetadataRetriever();
         ffmpeg_mmr.setDataSource(FILE_PATH);
+        ffmpeg_mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ALBUM);
+        ffmpeg_mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ARTIST);
 
         initRecyclerView();
         mCurrentX = dp2px(this, 30);
