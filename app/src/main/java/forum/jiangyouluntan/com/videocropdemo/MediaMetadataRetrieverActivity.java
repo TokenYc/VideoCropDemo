@@ -288,35 +288,6 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
         return (int) (dpValue * scale + 0.5f);
     }
 
-    public void getImage(final ImageView imageView, final int position) {
-//        executor.execute(new MyImageCropRunnable(imageView, position));
-        MyThreadPool.post(new MyImageCropRunnable(imageView, position));
-//        executor.execute(new MyFFMpegRunnable(imageView, position));
-
-    }
-
-
-    class MyImageCropRunnable implements Runnable {
-
-        ImageView imageView;
-        int position;
-
-        public MyImageCropRunnable(ImageView imageView, int position) {
-            this.imageView = imageView;
-            this.position = position;
-        }
-
-        @Override
-        public void run() {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    imageView.setImageBitmap(mmr.getFrameAtTime(position * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC));
-                }
-            });
-        }
-    }
-
 
     class getVideoFrameTask extends AsyncTask<Integer, Integer, Bitmap> {
 
