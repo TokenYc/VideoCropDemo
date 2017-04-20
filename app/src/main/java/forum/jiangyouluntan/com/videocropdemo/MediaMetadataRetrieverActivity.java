@@ -329,7 +329,7 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
 
         @Override
         protected Bitmap doInBackground(Integer... params) {
-            return mmr.getFrameAtTime(params[0] * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+            return mmr.getFrameAtTime(params[0] * 1000 * 1000, MediaMetadataRetriever.OPTION_PREVIOUS_SYNC);
         }
 
         @Override

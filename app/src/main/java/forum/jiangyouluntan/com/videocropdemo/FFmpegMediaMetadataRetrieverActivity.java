@@ -257,10 +257,9 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
             this.imageView = imageView;
         }
 
-
         @Override
         protected Bitmap doInBackground(Integer... params) {
-            return ffmpeg_mmr.getFrameAtTime(params[0] * 1000 * 1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+            return ffmpeg_mmr.getScaledFrameAtTime(params[0] * 1000 * 1000, FFmpegMediaMetadataRetriever.OPTION_PREVIOUS_SYNC,100,50);
         }
 
         @Override
