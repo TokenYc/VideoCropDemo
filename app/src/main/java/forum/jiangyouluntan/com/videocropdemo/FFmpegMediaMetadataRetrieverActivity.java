@@ -266,6 +266,7 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
         protected void onPostExecute(Bitmap bitmap) {
             if (bitmap != null) {
                 imageView.setImageBitmap(bitmap);
+                //TODO 设置完图片之后，bitmap传入另一个线程执行保存图片逻辑，保存成功将图片路径嫁入entity，下次recyclerview滑动到就不会再获取了，直接加载本地图片
             }
         }
     }
