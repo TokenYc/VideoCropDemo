@@ -4,30 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <SurfaceView
-        android:id="@+id/surfaceView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
 
     <Button
-        android:id="@+id/btn_play"
+        android:id="@+id/btn_mediacodec"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/surfaceView"
-        android:text="Play"
+        android:onClick="crop"
+        android:text="mediacodec"
         android:textAllCaps="false" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="42dp"
-        android:layout_alignParentBottom="true" />
-
-    <forum.jiangyouluntan.com.videocropdemo.TwoSideSeekBar.TwoSideSeekBar
-        android:id="@+id/seekBar"
-        android:layout_width="match_parent"
-        android:layout_height="42dp"
-        android:layout_alignParentBottom="true" />
 
 </RelativeLayout>

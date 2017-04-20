@@ -1,5 +1,22 @@
 package forum.jiangyouluntan.com.videocropdemo;
 
+/*
+ * Copyright 2013 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
@@ -13,15 +30,12 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
+import android.test.AndroidTestCase;
 import android.util.Log;
 import android.view.Surface;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -32,54 +46,24 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-import static junit.framework.Assert.fail;
+//20131122: minor tweaks to saveFrame() I/O
+//20131205: add alpha to EGLConfig (huge glReadPixels speedup); pre-allocate pixel buffers;
+//          log time to run saveFrame()
+//20140123: correct error checks on glGet*Location() and program creation (they don't set error)
+//20140212: eliminate byte swap
 
-public class MediaCodecActivity extends AppCompatActivity {
-    //   /Movies/fffff.mp4
-    //   /ZongHeng/temp/video/del_1492062006409.mp4
-    //  /ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4
-    private final String ROOT_PATH = getInnerSDCardPath() + "/相机";
-    //    private final String FILE_PATH = getInnerSDCardPath() + "/ZongHeng/temp/video/del_1492062006409.mp4";
-    private final String FILE_PATH = getInnerSDCardPath() + "/Movies/fffff.mp4";
-    //    private final String FILE_PATH = getInnerSDCardPath() + "/ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4";
-    //    private static final String FILE_PATH = ROOT_PATH+"/video_20170413_085109.mp4";
-    private final String DIR_PATH = ROOT_PATH + "/images/";
-
-//    private static final String FILE_PATH = "/storage/emulated/0/DCIM/Camera/VID_20170411_145656.mp4";
-//    private static final String TARGET_FILE_PATH = "/storage/emulated/0/DCIM/Camera/cc.mp4";
-//    private static final String DIR_PATH = "/storage/emulated/0/DCIM/Camera/images2/";
-//    private static final String FILE_PATH_2 = "/storage/emulated/0/DCIM/Camera/aa.jpg";
-
-    private Button btn_mediacodec;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_mediacodec);
-        Log.d("root dir", "root dir====>" + Environment.getExternalStorageDirectory().getPath());
-        File file = new File(FILE_PATH);
-        if (!file.exists()) {
-            Toast.makeText(this, "视频路径不正确！！！", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Log.e("FILE_PATH", "FILE_PATH==>" + FILE_PATH);
-        btn_mediacodec = (Button) findViewById(R.id.btn_mediacodec);
-        btn_mediacodec.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    testExtractMpegFrames();
-                } catch (Throwable throwable) {
-                    throwable.printStackTrace();
-                }
-            }
-        });
-
-    }
-
-
+/**
+ * Extract frames from an MP4 using MediaExtractor, MediaCodec, and GLES.  Put a .mp4 file
+ * in "/sdcard/source.mp4" and look for output files named "/sdcard/frame-XX.png".
+ * <p>
+ * This uses various features first available in Android "Jellybean" 4.1 (API 16).
+ * <p>
+ * (This was derived from bits and pieces of CTS tests, and is packaged as such, but is not
+ * currently part of CTS.)
+ */
+public class ExtractMpegFramesTest extends AndroidTestCase {
     private static final String TAG = "ExtractMpegFramesTest";
-    private static final boolean VERBOSE = true;           // lots of logging
+    private static final boolean VERBOSE = false;           // lots of logging
 
     // where to find files (note: requires WRITE_EXTERNAL_STORAGE permission)
     private static final File FILES_DIR = Environment.getExternalStorageDirectory();
@@ -103,9 +87,9 @@ public class MediaCodecActivity extends AppCompatActivity {
      */
     public static class ExtractMpegFramesWrapper implements Runnable {
         private Throwable mThrowable;
-        private MediaCodecActivity mTest;
+        private ExtractMpegFramesTest mTest;
 
-        private ExtractMpegFramesWrapper(MediaCodecActivity test) {
+        private ExtractMpegFramesWrapper(ExtractMpegFramesTest test) {
             mTest = test;
         }
 
@@ -121,7 +105,7 @@ public class MediaCodecActivity extends AppCompatActivity {
         /**
          * Entry point.
          */
-        public static void runTest(MediaCodecActivity obj) throws Throwable {
+        public static void runTest(ExtractMpegFramesTest obj) throws Throwable {
             ExtractMpegFramesWrapper wrapper = new ExtractMpegFramesWrapper(obj);
             Thread th = new Thread(wrapper, "codec test");
             th.start();
@@ -181,8 +165,6 @@ public class MediaCodecActivity extends AppCompatActivity {
             decoder.start();
 
             doExtract(extractor, trackIndex, decoder, outputSurface);
-        } catch (Exception e) {
-            e.printStackTrace();
         } finally {
             // release everything we grabbed
             if (outputSurface != null) {
@@ -344,7 +326,7 @@ public class MediaCodecActivity extends AppCompatActivity {
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     private static class CodecOutputSurface
             implements SurfaceTexture.OnFrameAvailableListener {
-        private STextureRender mTextureRender;
+        private ExtractMpegFramesTest.STextureRender mTextureRender;
         private SurfaceTexture mSurfaceTexture;
         private Surface mSurface;
 
@@ -380,7 +362,7 @@ public class MediaCodecActivity extends AppCompatActivity {
          * Creates interconnected instances of TextureRender, SurfaceTexture, and Surface.
          */
         private void setup() {
-            mTextureRender = new STextureRender();
+            mTextureRender = new ExtractMpegFramesTest.STextureRender();
             mTextureRender.surfaceCreated();
 
             if (VERBOSE) Log.d(TAG, "textureID=" + mTextureRender.getTextureId());
@@ -677,7 +659,7 @@ public class MediaCodecActivity extends AppCompatActivity {
                     .order(ByteOrder.nativeOrder()).asFloatBuffer();
             mTriangleVertices.put(mTriangleVerticesData).position(0);
 
-            android.opengl.Matrix.setIdentityM(mSTMatrix, 0);
+            Matrix.setIdentityM(mSTMatrix, 0);
         }
 
         public int getTextureId() {
@@ -719,7 +701,7 @@ public class MediaCodecActivity extends AppCompatActivity {
             GLES20.glEnableVertexAttribArray(maTextureHandle);
             checkGlError("glEnableVertexAttribArray maTextureHandle");
 
-            android.opengl.Matrix.setIdentityM(mMVPMatrix, 0);
+            Matrix.setIdentityM(mMVPMatrix, 0);
             GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, mMVPMatrix, 0);
             GLES20.glUniformMatrix4fv(muSTMatrixHandle, 1, false, mSTMatrix, 0);
 
@@ -849,6 +831,4 @@ public class MediaCodecActivity extends AppCompatActivity {
     public static String getInnerSDCardPath() {
         return Environment.getExternalStorageDirectory().getPath();
     }
-
-
 }

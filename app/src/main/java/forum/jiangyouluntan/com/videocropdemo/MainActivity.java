@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_FFmpegAndroidLibraryGetAllImageActivity = (Button) findViewById(R.id.btn_FFmpegAndroidLibraryGetAllImageActivity);
         btn_MediaCodecActivity = (Button) findViewById(R.id.btn_MediaCodecActivity);
 
+
     }
 
     private void initListener() {
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_MediaCodecActivity:
                 startActivity(new Intent(this, MediaCodecActivity.class));
                 break;
+
 
         }
     }
