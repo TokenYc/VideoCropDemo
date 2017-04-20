@@ -260,7 +260,7 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
 
         @Override
         protected Bitmap doInBackground(Integer... params) {
-            return ffmpeg_mmr.getFrameAtTime(params[0] * 1000 * 1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST);
+            return ffmpeg_mmr.getFrameAtTime(params[0] * 1000 * 1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST_SYNC);
         }
 
         @Override

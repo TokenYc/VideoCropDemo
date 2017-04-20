@@ -255,7 +255,6 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
         @Override
         public void onViewRecycled(RecyclerView.ViewHolder holder) {
             super.onViewRecycled(holder);
-//            int position = holder.getAdapterPosition();
         }
 
         class MyViewHolder extends RecyclerView.ViewHolder {
