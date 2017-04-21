@@ -34,7 +34,7 @@ import forum.jiangyouluntan.com.videocropdemo.entity.VideoImageEntity;
 import forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView;
 import wseemann.media.FFmpegMediaMetadataRetriever;
 
-public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
+public class FFmpegMediaMetadataRetrieverTenActivity extends AppCompatActivity {
     private final String ROOT_PATH = getInnerSDCardPath() + "/相机";
     private final String DIR_PATH = ROOT_PATH + "/images/";
 
@@ -173,7 +173,7 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new MyViewHolder(LayoutInflater.from(FFmpegMediaMetadataRetrieverActivity.this).inflate(R.layout.item, parent, false));
+            return new MyViewHolder(LayoutInflater.from(FFmpegMediaMetadataRetrieverTenActivity.this).inflate(R.layout.item, parent, false));
         }
 
 
@@ -189,7 +189,7 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
                 VideoImageEntity info = infos.get(position);
                 if (!TextUtils.isEmpty(info.getImagePath()) && new File(info.getImagePath()).exists()) {//如果图片路径不为空或者路径图片存在
                     Log.e("onBindViewHolder", "position=>" + position + "图片存在");
-                    Glide.with(FFmpegMediaMetadataRetrieverActivity.this)
+                    Glide.with(FFmpegMediaMetadataRetrieverTenActivity.this)
                             .load("file://" + info.getImagePath())
                             .centerCrop()
                             .into(viewHolder.imvCrop);
