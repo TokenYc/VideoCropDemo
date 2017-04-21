@@ -1,12 +1,9 @@
 package forum.jiangyouluntan.com.videocropdemo;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.media.MediaMetadataRetriever;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,50 +22,23 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
-import com.github.hiteshsondhi88.libffmpeg.LoadBinaryResponseHandler;
-import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
-
-import org.ffmpeg.android.FfmpegController;
-import org.ffmpeg.android.ShellUtils;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import forum.jiangyouluntan.com.videocropdemo.TwoSideSeekBar.TwoSideSeekBar;
-import forum.jiangyouluntan.com.videocropdemo.entity.CropImageEntity;
 import forum.jiangyouluntan.com.videocropdemo.entity.VideoImageEntity;
 import forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView;
-import forum.jiangyouluntan.com.videocropdemo.utils.MyThreadPool;
 
 public class MediaMetadataRetrieverActivity extends AppCompatActivity {
-    //   /Movies/fffff.mp4
-    //   /ZongHeng/temp/video/del_1492062006409.mp4
-    //  /ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4
     private final String ROOT_PATH = getInnerSDCardPath() + "/相机";
-    //    private final String FILE_PATH = getInnerSDCardPath() + "/ZongHeng/temp/video/del_1492062006409.mp4";
-    private final String FILE_PATH = getInnerSDCardPath() + "/Movies/fffff.mp4";
-    //    private final String FILE_PATH = getInnerSDCardPath() + "/ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4";
-    //    private static final String FILE_PATH = ROOT_PATH+"/video_20170413_085109.mp4";
-    private final String TARGET_FILE_PATH = ROOT_PATH + "/cc.mp4";
     private final String DIR_PATH = ROOT_PATH + "/images/";
-
-    private final String FILE_PATH_2 = ROOT_PATH + "/aa.jpg";
-
-//    private static final String FILE_PATH = "/storage/emulated/0/DCIM/Camera/VID_20170411_145656.mp4";
-//    private static final String TARGET_FILE_PATH = "/storage/emulated/0/DCIM/Camera/cc.mp4";
-//    private static final String DIR_PATH = "/storage/emulated/0/DCIM/Camera/images2/";
-//    private static final String FILE_PATH_2 = "/storage/emulated/0/DCIM/Camera/aa.jpg";
 
     private TextureVideoView videoView;
     private RecyclerView recyclerView;
@@ -82,26 +52,9 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
     private float mCurrentX;
     private float mCurrentY = 0;
     private String videoDuration;
-    private Queue<CropImageEntity> queue;
 
     private List<VideoImageEntity> infos;
-
-
-    Callable<Bitmap> callable = new Callable<Bitmap>() {
-        @Override
-        public Bitmap call() throws Exception {
-            long currentTime = System.currentTimeMillis();
-            Bitmap tempBitmap = mmr.getFrameAtTime(currentTime);
-            Log.d("video", "getFrame use time====>" + (System.currentTimeMillis() - currentTime));
-            Log.d("video", "tempBitmap width====>" + tempBitmap.getWidth() + "tempBitmap height====>" + tempBitmap.getHeight());
-            Matrix matrix = new Matrix();
-            matrix.postScale(0.1f, 0.1f);
-            tempBitmap = Bitmap.createBitmap(tempBitmap, 0, 0, tempBitmap.getWidth(), tempBitmap.getHeight(), matrix, true);
-            return tempBitmap;
-        }
-    };
-    FutureTask<Bitmap> futureTask = new FutureTask<Bitmap>(callable);
-
+    private String videp_path;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,14 +64,14 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
         videoView = (TextureVideoView) findViewById(R.id.videoView);
         seekBar = (TwoSideSeekBar) findViewById(R.id.seekBar);
         Log.d("root dir", "root dir====>" + Environment.getExternalStorageDirectory().getPath());
-        queue = new LinkedList<>();
-        File file = new File(FILE_PATH);
+        videp_path = getIntent().getStringExtra("videp_path");
+        File file = new File(videp_path);
         if (!file.exists()) {
             Toast.makeText(this, "视频路径不正确！！！", Toast.LENGTH_SHORT).show();
             return;
         }
-        Log.e("FILE_PATH", "FILE_PATH==>" + FILE_PATH);
-        mmr.setDataSource(FILE_PATH);
+        Log.e("FILE_PATH", "FILE_PATH==>" + videp_path);
+        mmr.setDataSource(videp_path);
         executor = Executors.newFixedThreadPool(1);
         initVideoSize();
 //        executor.execute(futureTask);
@@ -202,7 +155,7 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
         lp.height = (int) (height * (lp.width / (float) width));
         Log.d("video", "targetWidth=====>" + lp.width + "targetHeight======>" + lp.height);
         videoView.setLayoutParams(lp);
-        videoView.setVideoPath(FILE_PATH);
+        videoView.setVideoPath(videp_path);
         videoView.start();
     }
 
@@ -305,7 +258,7 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            if (bitmap!=null){
+            if (bitmap != null) {
                 imageView.setImageBitmap(bitmap);
             }
         }

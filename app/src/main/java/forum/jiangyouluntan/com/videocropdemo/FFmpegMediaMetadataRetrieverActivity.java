@@ -26,6 +26,8 @@ import com.bumptech.glide.Glide;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import forum.jiangyouluntan.com.videocropdemo.TwoSideSeekBar.TwoSideSeekBar;
 import forum.jiangyouluntan.com.videocropdemo.entity.VideoImageEntity;
@@ -33,23 +35,9 @@ import forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView;
 import wseemann.media.FFmpegMediaMetadataRetriever;
 
 public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
-    //   /Movies/fffff.mp4
-    //   /ZongHeng/temp/video/del_1492062006409.mp4
-    //  /ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4
     private final String ROOT_PATH = getInnerSDCardPath() + "/相机";
-    //    private final String FILE_PATH = getInnerSDCardPath() + "/ZongHeng/temp/video/del_1492062006409.mp4";
-    private final String FILE_PATH = getInnerSDCardPath() + "/DCIM/Camera/VID_20170411_145656.mp4";
-    //    private final String FILE_PATH = getInnerSDCardPath() + "/ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4";
-    //    private static final String FILE_PATH = ROOT_PATH+"/video_20170413_085109.mp4";
-    private final String TARGET_FILE_PATH = ROOT_PATH + "/cc.mp4";
     private final String DIR_PATH = ROOT_PATH + "/images/";
 
-    private final String FILE_PATH_2 = ROOT_PATH + "/aa.jpg";
-
-//    private static final String FILE_PATH = "/storage/emulated/0/DCIM/Camera/VID_20170411_145656.mp4";
-//    private static final String TARGET_FILE_PATH = "/storage/emulated/0/DCIM/Camera/cc.mp4";
-//    private static final String DIR_PATH = "/storage/emulated/0/DCIM/Camera/images2/";
-//    private static final String FILE_PATH_2 = "/storage/emulated/0/DCIM/Camera/aa.jpg";
 
     private TextureVideoView videoView;
     private RecyclerView recyclerView;
@@ -66,6 +54,10 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
     private List<VideoImageEntity> infos;
     private FFmpegMediaMetadataRetriever ffmpeg_mmr;
 
+    private String videp_path;
+
+    ExecutorService executorService;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,19 +67,21 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
         videoView = (TextureVideoView) findViewById(R.id.videoView);
         seekBar = (TwoSideSeekBar) findViewById(R.id.seekBar);
         Log.d("root dir", "root dir====>" + Environment.getExternalStorageDirectory().getPath());
-        File file = new File(FILE_PATH);
+        videp_path = getIntent().getStringExtra("videp_path");
+        File file = new File(videp_path);
         if (!file.exists()) {
             Toast.makeText(this, "视频路径不正确！！！", Toast.LENGTH_SHORT).show();
             return;
         }
-        Log.e("FILE_PATH", "FILE_PATH==>" + FILE_PATH);
-        mmr.setDataSource(FILE_PATH);
+        executorService = Executors.newFixedThreadPool(10);
+        Log.e("FILE_PATH", "FILE_PATH==>" + videp_path);
+        mmr.setDataSource(videp_path);
         initVideoSize();
 //        executor.execute(futureTask);
 
 
         ffmpeg_mmr = new FFmpegMediaMetadataRetriever();
-        ffmpeg_mmr.setDataSource(FILE_PATH);
+        ffmpeg_mmr.setDataSource(videp_path);
         ffmpeg_mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ALBUM);
         ffmpeg_mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ARTIST);
 
@@ -170,7 +164,7 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
         lp.height = (int) (height * (lp.width / (float) width));
         Log.d("video", "targetWidth=====>" + lp.width + "targetHeight======>" + lp.height);
         videoView.setLayoutParams(lp);
-        videoView.setVideoPath(FILE_PATH);
+        videoView.setVideoPath(videp_path);
         videoView.start();
     }
 
@@ -206,10 +200,8 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
                         viewHolder.imvCrop.setImageBitmap(BitmapFactory.decodeFile(file.getPath()));
                     } else {
                         Log.e("onBindViewHolder", "position=>" + position + "图片不存在");
-//                        viewHolder.imvCrop.setImageBitmap(mmr.getFrameAtTime(position * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC));
-//                        getImage(viewHolder.imvCrop, position);
+//                        executorService.submit(new getVideoFrameRunnable(position,viewHolder.imvCrop));
                         new getVideoFrameTask(viewHolder.imvCrop).execute(position);
-//                        new getVideoFrameTask(viewHolder.imvCrop).executeOnExecutor(executor,position);
                     }
                 }
             }
@@ -259,7 +251,7 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
 
         @Override
         protected Bitmap doInBackground(Integer... params) {
-            return ffmpeg_mmr.getScaledFrameAtTime(params[0] * 1000 * 1000, FFmpegMediaMetadataRetriever.OPTION_PREVIOUS_SYNC,100,50);
+            return ffmpeg_mmr.getScaledFrameAtTime(params[0] * 1000 * 1000, FFmpegMediaMetadataRetriever.OPTION_PREVIOUS_SYNC, 100, 50);
         }
 
         @Override
@@ -268,6 +260,22 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
                 imageView.setImageBitmap(bitmap);
                 //TODO 设置完图片之后，bitmap传入另一个线程执行保存图片逻辑，保存成功将图片路径嫁入entity，下次recyclerview滑动到就不会再获取了，直接加载本地图片
             }
+        }
+    }
+
+    class getVideoFrameRunnable implements Runnable {
+
+        private ImageView imageView;
+        private int position;
+
+        public getVideoFrameRunnable(int position, ImageView imageView) {
+            this.position = position;
+            this.imageView = imageView;
+        }
+
+        @Override
+        public void run() {
+            this.imageView.setImageBitmap(ffmpeg_mmr.getScaledFrameAtTime(position * 1000 * 1000, FFmpegMediaMetadataRetriever.OPTION_PREVIOUS_SYNC, 100, 50));
         }
     }
 

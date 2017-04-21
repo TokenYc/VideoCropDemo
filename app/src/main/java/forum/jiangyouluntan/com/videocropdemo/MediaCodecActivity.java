@@ -40,29 +40,24 @@ public class MediaCodecActivity extends AppCompatActivity {
     //  /ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4
     private final String ROOT_PATH = getInnerSDCardPath() + "/相机";
     //    private final String FILE_PATH = getInnerSDCardPath() + "/ZongHeng/temp/video/del_1492062006409.mp4";
-    private final String FILE_PATH = getInnerSDCardPath() + "/Movies/fffff.mp4";
-    //    private final String FILE_PATH = getInnerSDCardPath() + "/ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4";
-    //    private static final String FILE_PATH = ROOT_PATH+"/video_20170413_085109.mp4";
     private final String DIR_PATH = ROOT_PATH + "/images/";
 
-//    private static final String FILE_PATH = "/storage/emulated/0/DCIM/Camera/VID_20170411_145656.mp4";
-//    private static final String TARGET_FILE_PATH = "/storage/emulated/0/DCIM/Camera/cc.mp4";
-//    private static final String DIR_PATH = "/storage/emulated/0/DCIM/Camera/images2/";
-//    private static final String FILE_PATH_2 = "/storage/emulated/0/DCIM/Camera/aa.jpg";
 
     private Button btn_mediacodec;
+    private String videp_path;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mediacodec);
         Log.d("root dir", "root dir====>" + Environment.getExternalStorageDirectory().getPath());
-        File file = new File(FILE_PATH);
+        videp_path=getIntent().getStringExtra("videp_path");
+        File file = new File(videp_path);
         if (!file.exists()) {
             Toast.makeText(this, "视频路径不正确！！！", Toast.LENGTH_SHORT).show();
             return;
         }
-        Log.e("FILE_PATH", "FILE_PATH==>" + FILE_PATH);
+        Log.e("FILE_PATH", "FILE_PATH==>" + videp_path);
         btn_mediacodec = (Button) findViewById(R.id.btn_mediacodec);
         btn_mediacodec.setOnClickListener(new View.OnClickListener() {
             @Override

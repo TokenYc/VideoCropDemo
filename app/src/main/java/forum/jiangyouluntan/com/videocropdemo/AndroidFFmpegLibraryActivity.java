@@ -48,24 +48,8 @@ import forum.jiangyouluntan.com.videocropdemo.entity.VideoImageEntity;
 import forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView;
 
 public class AndroidFFmpegLibraryActivity extends AppCompatActivity {
-    //   /Movies/fffff.mp4
-    //   /ZongHeng/temp/video/del_1492062006409.mp4
-    //  /ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4
     private final String ROOT_PATH = getInnerSDCardPath() + "/相机";
-    //    private final String FILE_PATH = getInnerSDCardPath() + "/ZongHeng/temp/video/del_1492062006409.mp4";
-    private final String FILE_PATH = getInnerSDCardPath() + "/Movies/fffff.mp4";
-    //    private final String FILE_PATH = getInnerSDCardPath() + "/ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4";
-    //    private static final String FILE_PATH = ROOT_PATH+"/video_20170413_085109.mp4";
-    private final String TARGET_FILE_PATH = ROOT_PATH + "/cc.mp4";
     private final String DIR_PATH = ROOT_PATH + "/images/";
-
-    private final String FILE_PATH_2 = ROOT_PATH + "/aa.jpg";
-
-//    private static final String FILE_PATH = "/storage/emulated/0/DCIM/Camera/VID_20170411_145656.mp4";
-//    private static final String TARGET_FILE_PATH = "/storage/emulated/0/DCIM/Camera/cc.mp4";
-//    private static final String DIR_PATH = "/storage/emulated/0/DCIM/Camera/images2/";
-//    private static final String FILE_PATH_2 = "/storage/emulated/0/DCIM/Camera/aa.jpg";
-
 
     private TextureVideoView videoView;
     private RecyclerView recyclerView;
@@ -81,6 +65,7 @@ public class AndroidFFmpegLibraryActivity extends AppCompatActivity {
     private String videoDuration;
 
     private List<VideoImageEntity> infos;
+    private String videp_path;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,13 +75,14 @@ public class AndroidFFmpegLibraryActivity extends AppCompatActivity {
         videoView = (TextureVideoView) findViewById(R.id.videoView);
         seekBar = (TwoSideSeekBar) findViewById(R.id.seekBar);
         Log.d("root dir", "root dir====>" + Environment.getExternalStorageDirectory().getPath());
-        File file = new File(FILE_PATH);
+        videp_path=getIntent().getStringExtra("videp_path");
+        File file = new File(videp_path);
         if (!file.exists()) {
             Toast.makeText(this, "视频路径不正确！！！", Toast.LENGTH_SHORT).show();
             return;
         }
-        Log.e("FILE_PATH", "FILE_PATH==>" + FILE_PATH);
-        mmr.setDataSource(FILE_PATH);
+        Log.e("FILE_PATH", "FILE_PATH==>" + videp_path);
+        mmr.setDataSource(videp_path);
         executor = Executors.newFixedThreadPool(1);
         initVideoSize();
 //        executor.execute(futureTask);
@@ -174,7 +160,7 @@ public class AndroidFFmpegLibraryActivity extends AppCompatActivity {
         lp.height = (int) (height * (lp.width / (float) width));
         Log.d("video", "targetWidth=====>" + lp.width + "targetHeight======>" + lp.height);
         videoView.setLayoutParams(lp);
-        videoView.setVideoPath(FILE_PATH);
+        videoView.setVideoPath(videp_path);
         videoView.start();
     }
 
@@ -287,7 +273,7 @@ public class AndroidFFmpegLibraryActivity extends AppCompatActivity {
                 FfmpegController fc = new FfmpegController(
                         AndroidFFmpegLibraryActivity.this, fileAppRoot);
                 Log.d("cropimage", "position====>" + position + "  cropImage start time=====>" + System.currentTimeMillis());
-                fc.getVideoImage3(getTime(position * 1000L), FILE_PATH, targetFile.getPath(), new ShellUtils.ShellCallback() {
+                fc.getVideoImage3(getTime(position * 1000L), videp_path, targetFile.getPath(), new ShellUtils.ShellCallback() {
 
                     @Override
                     public void shellOut(String shellLine) {

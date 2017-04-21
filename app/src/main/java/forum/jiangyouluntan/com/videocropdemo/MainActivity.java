@@ -56,40 +56,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivityForResult(i, REQUEST_CODE);
                 break;
             case R.id.btn_FFmpegAndroidLibraryActivity:
-                if (isPathEmpty()){
+                if (isPathEmpty()) {
                     return;
                 }
-                startActivity(new Intent(this, FFmpegAndroidLibraryActivity.class));
+                startActivity(new Intent(this, FFmpegAndroidLibraryActivity.class).putExtra("videp_path", "" + btn_chooseVideo.getText().toString()));
                 break;
             case R.id.btn_androidffmpeglibrary:
-                if (isPathEmpty()){
+                if (isPathEmpty()) {
                     return;
                 }
-                startActivity(new Intent(this, AndroidFFmpegLibraryActivity.class));
+                startActivity(new Intent(this, AndroidFFmpegLibraryActivity.class).putExtra("videp_path", "" + btn_chooseVideo.getText().toString()));
                 break;
             case R.id.btn_FFmpegAndroidLibraryGetAllImageActivity:
-                if (isPathEmpty()){
+                if (isPathEmpty()) {
                     return;
                 }
-                startActivity(new Intent(this, FFmpegAndroidLibraryGetAllImageActivity.class));
+                startActivity(new Intent(this, FFmpegAndroidLibraryGetAllImageActivity.class).putExtra("videp_path", "" + btn_chooseVideo.getText().toString()));
                 break;
             case R.id.btn_MediaCodecActivity:
-                if (isPathEmpty()){
+                if (isPathEmpty()) {
                     return;
                 }
-                startActivity(new Intent(this, MediaCodecActivity.class));
+                startActivity(new Intent(this, MediaCodecActivity.class).putExtra("videp_path", "" + btn_chooseVideo.getText().toString()));
                 break;
             case R.id.btn_MediaMetadataRetrieverActivity:
-                if (isPathEmpty()){
+                if (isPathEmpty()) {
                     return;
                 }
-                startActivity(new Intent(this, MediaMetadataRetrieverActivity.class));
+                startActivity(new Intent(this, MediaMetadataRetrieverActivity.class).putExtra("videp_path", "" + btn_chooseVideo.getText().toString()));
                 break;
             case R.id.btn_FFmpegMediaMetadataRetrieverActivity:
-                if (isPathEmpty()){
+                if (isPathEmpty()) {
                     return;
                 }
-                startActivity(new Intent(this, FFmpegMediaMetadataRetrieverActivity.class));
+                startActivity(new Intent(this, FFmpegMediaMetadataRetrieverActivity.class).putExtra("videp_path", "" + btn_chooseVideo.getText().toString()));
                 break;
 
 
