@@ -25,6 +25,7 @@
         <activity android:name=".MediaCodecActivity"/>
         <activity android:name=".MediaMetadataRetrieverActivity"/>
         <activity android:name=".FFmpegMediaMetadataRetrieverActivity"/>
+        <activity android:name=".MediaMetadataRetrieverVideoViewActivity"/>
     </application>
 
 </manifest>

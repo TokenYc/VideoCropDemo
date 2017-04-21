@@ -14,7 +14,8 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int REQUEST_CODE = 520;
 
-    private Button btn_chooseVideo, btn_FFmpegAndroidLibraryActivity, btn_androidffmpeglibrary, btn_FFmpegAndroidLibraryGetAllImageActivity, btn_MediaCodecActivity, btn_MediaMetadataRetrieverActivity, btn_FFmpegMediaMetadataRetrieverActivity;
+    private Button btn_chooseVideo, btn_FFmpegAndroidLibraryActivity, btn_androidffmpeglibrary, btn_FFmpegAndroidLibraryGetAllImageActivity, btn_MediaCodecActivity, btn_MediaMetadataRetrieverActivity, btn_FFmpegMediaMetadataRetrieverActivity
+            ,btn_MediaMetadataRetrieverVideoViewActivity;
 
 
     @Override
@@ -35,6 +36,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_MediaCodecActivity = (Button) findViewById(R.id.btn_MediaCodecActivity);
         btn_MediaMetadataRetrieverActivity = (Button) findViewById(R.id.btn_MediaMetadataRetrieverActivity);
         btn_FFmpegMediaMetadataRetrieverActivity = (Button) findViewById(R.id.btn_FFmpegMediaMetadataRetrieverActivity);
+        btn_MediaMetadataRetrieverVideoViewActivity = (Button) findViewById(R.id.btn_MediaMetadataRetrieverVideoViewActivity);
+
 
     }
 
@@ -46,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_MediaCodecActivity.setOnClickListener(this);
         btn_MediaMetadataRetrieverActivity.setOnClickListener(this);
         btn_FFmpegMediaMetadataRetrieverActivity.setOnClickListener(this);
+        btn_MediaMetadataRetrieverVideoViewActivity.setOnClickListener(this);
     }
 
     @Override
@@ -91,7 +95,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 startActivity(new Intent(this, FFmpegMediaMetadataRetrieverActivity.class).putExtra("videp_path", "" + btn_chooseVideo.getText().toString()));
                 break;
-
+            case R.id.btn_MediaMetadataRetrieverVideoViewActivity:
+                if (isPathEmpty()) {
+                    return;
+                }
+                startActivity(new Intent(this, MediaMetadataRetrieverVideoViewActivity.class).putExtra("videp_path", "" + btn_chooseVideo.getText().toString()));
+                break;
 
         }
     }
