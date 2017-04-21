@@ -3,7 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-
+    <Button
+        android:id="@+id/btn_chooseVideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:hint="请先选择视频地址"
+        android:textAllCaps="false" />
 
     <Button
         android:id="@+id/btn_FFmpegAndroidLibraryActivity"

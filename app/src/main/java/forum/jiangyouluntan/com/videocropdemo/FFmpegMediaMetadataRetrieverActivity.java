@@ -38,7 +38,7 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
     //  /ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4
     private final String ROOT_PATH = getInnerSDCardPath() + "/相机";
     //    private final String FILE_PATH = getInnerSDCardPath() + "/ZongHeng/temp/video/del_1492062006409.mp4";
-    private final String FILE_PATH = getInnerSDCardPath() + "/Movies/fffff.mp4";
+    private final String FILE_PATH = getInnerSDCardPath() + "/DCIM/Camera/VID_20170411_145656.mp4";
     //    private final String FILE_PATH = getInnerSDCardPath() + "/ddpaiSDK/video/video.M6.00e00100b534/L_20170412100733_173_173.mp4";
     //    private static final String FILE_PATH = ROOT_PATH+"/video_20170413_085109.mp4";
     private final String TARGET_FILE_PATH = ROOT_PATH + "/cc.mp4";
