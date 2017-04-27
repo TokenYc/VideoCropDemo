@@ -2,7 +2,6 @@ package forum.jiangyouluntan.com.videocropdemo;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.os.AsyncTask;
@@ -11,7 +10,6 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,8 +18,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
-import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -54,7 +50,7 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
     private List<VideoImageEntity> infos;
     private FFmpegMediaMetadataRetriever ffmpeg_mmr;
 
-    private String videp_path;
+    private String video_path;
 
     ExecutorService executorService;
 
@@ -67,21 +63,22 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
         videoView = (TextureVideoView) findViewById(R.id.videoView);
         seekBar = (TwoSideSeekBar) findViewById(R.id.seekBar);
         Log.d("root dir", "root dir====>" + Environment.getExternalStorageDirectory().getPath());
-        videp_path = getIntent().getStringExtra("videp_path");
-        File file = new File(videp_path);
+        video_path = getIntent().getStringExtra("video_path");
+//        video_path = getInnerSDCardPath()+"/DCIM/Camera/VID20170427200336.mp4";
+        File file = new File(video_path);
         if (!file.exists()) {
             Toast.makeText(this, "视频路径不正确！！！", Toast.LENGTH_SHORT).show();
             return;
         }
         executorService = Executors.newFixedThreadPool(10);
-        Log.e("FILE_PATH", "FILE_PATH==>" + videp_path);
-        mmr.setDataSource(videp_path);
+        Log.e("FILE_PATH", "FILE_PATH==>" + video_path);
+        mmr.setDataSource(video_path);
         initVideoSize();
 //        executor.execute(futureTask);
 
 
         ffmpeg_mmr = new FFmpegMediaMetadataRetriever();
-        ffmpeg_mmr.setDataSource(videp_path);
+        ffmpeg_mmr.setDataSource(video_path);
         ffmpeg_mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ALBUM);
         ffmpeg_mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ARTIST);
 
@@ -164,7 +161,7 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
         lp.height = (int) (height * (lp.width / (float) width));
         Log.d("video", "targetWidth=====>" + lp.width + "targetHeight======>" + lp.height);
         videoView.setLayoutParams(lp);
-        videoView.setVideoPath(videp_path);
+        videoView.setVideoPath(video_path);
         videoView.start();
     }
 
@@ -186,24 +183,31 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
                 viewHolder.imvCrop.setImageBitmap(null);
             } else {
                 viewHolder.imvCrop.setImageBitmap(null);
-                VideoImageEntity info = infos.get(position);
-                if (!TextUtils.isEmpty(info.getImagePath()) && new File(info.getImagePath()).exists()) {//如果图片路径不为空或者路径图片存在
-                    Log.e("onBindViewHolder", "position=>" + position + "图片存在");
-                    Glide.with(FFmpegMediaMetadataRetrieverActivity.this)
-                            .load("file://" + info.getImagePath())
-                            .centerCrop()
-                            .into(viewHolder.imvCrop);
-                } else {//不存在
-                    File file = new File(DIR_PATH + position + ".jpg");
-                    if (file.exists()) {//文件夹中存在相同名字的图片直接加载
-                        Log.e("onBindViewHolder", "position=>" + position + "info图片不存在,SD卡存在");
-                        viewHolder.imvCrop.setImageBitmap(BitmapFactory.decodeFile(file.getPath()));
-                    } else {
-                        Log.e("onBindViewHolder", "position=>" + position + "图片不存在");
-//                        executorService.submit(new getVideoFrameRunnable(position,viewHolder.imvCrop));
-                        new getVideoFrameTask(viewHolder.imvCrop).execute(position);
-                    }
+                GetVideoFrameTask oldTask= (GetVideoFrameTask) viewHolder.imvCrop.getTag();
+                if (oldTask!=null){
+                    oldTask.cancel(true);
                 }
+                GetVideoFrameTask newTask=new GetVideoFrameTask(viewHolder.imvCrop);
+                newTask.execute(position);
+                viewHolder.imvCrop.setTag(newTask);
+//                VideoImageEntity info = infos.get(position);
+//                if (!TextUtils.isEmpty(info.getImagePath()) && new File(info.getImagePath()).exists()) {//如果图片路径不为空或者路径图片存在
+//                    Log.e("onBindViewHolder", "position=>" + position + "图片存在");
+//                    Glide.with(FFmpegMediaMetadataRetrieverActivity.this)
+//                            .load("file://" + info.getImagePath())
+//                            .centerCrop()
+//                            .into(viewHolder.imvCrop);
+//                } else {//不存在
+//                    File file = new File(DIR_PATH + position + ".jpg");
+//                    if (file.exists()) {//文件夹中存在相同名字的图片直接加载
+//                        Log.e("onBindViewHolder", "position=>" + position + "info图片不存在,SD卡存在");
+//                        viewHolder.imvCrop.setImageBitmap(BitmapFactory.decodeFile(file.getPath()));
+//                    } else {
+//                        Log.e("onBindViewHolder", "position=>" + position + "图片不存在");
+////                        executorService.submit(new getVideoFrameRunnable(position,viewHolder.imvCrop));
+//                        new GetVideoFrameTask(viewHolder.imvCrop).execute(position);
+//                    }
+//                }
             }
         }
 
@@ -241,17 +245,17 @@ public class FFmpegMediaMetadataRetrieverActivity extends AppCompatActivity {
     }
 
 
-    class getVideoFrameTask extends AsyncTask<Integer, Integer, Bitmap> {
+    class GetVideoFrameTask extends AsyncTask<Integer, Integer, Bitmap> {
 
         private ImageView imageView;
 
-        public getVideoFrameTask(ImageView imageView) {
+        public GetVideoFrameTask(ImageView imageView) {
             this.imageView = imageView;
         }
 
         @Override
         protected Bitmap doInBackground(Integer... params) {
-            return ffmpeg_mmr.getScaledFrameAtTime(params[0] * 1000 * 1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST_SYNC, 100, 50);
+            return ffmpeg_mmr.getScaledFrameAtTime(params[0] * 1000 * 1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST_SYNC, 200, 100);
         }
 
         @Override

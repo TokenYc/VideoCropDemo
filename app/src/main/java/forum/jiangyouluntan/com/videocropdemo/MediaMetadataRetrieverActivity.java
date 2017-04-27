@@ -194,7 +194,7 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
 //                        viewHolder.imvCrop.setImageBitmap(mmr.getFrameAtTime(position * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC));
 //                        getImage(viewHolder.imvCrop, position);
                         new getVideoFrameTask(viewHolder.imvCrop).execute(position);
-//                        new getVideoFrameTask(viewHolder.imvCrop).executeOnExecutor(executor,position);
+//                        new GetVideoFrameTask(viewHolder.imvCrop).executeOnExecutor(executor,position);
                     }
                 }
             }

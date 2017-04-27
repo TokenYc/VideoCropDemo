@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (isPathEmpty()) {
                     return;
                 }
-                startActivity(new Intent(this, FFmpegMediaMetadataRetrieverActivity.class).putExtra("videp_path", "" + btn_chooseVideo.getText().toString()));
+                startActivity(new Intent(this, FFmpegMediaMetadataRetrieverActivity.class).putExtra("video_path", "" + btn_chooseVideo.getText().toString()));
                 break;
 
 
