@@ -193,6 +193,7 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
                         Log.e("onBindViewHolder", "position=>" + position + "图片不存在");
 //                        viewHolder.imvCrop.setImageBitmap(mmr.getFrameAtTime(position * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC));
 //                        getImage(viewHolder.imvCrop, position);
+                        viewHolder.imvCrop.setTag(position);
                         new getVideoFrameTask(viewHolder.imvCrop).execute(position);
 //                        new GetVideoFrameTask(viewHolder.imvCrop).executeOnExecutor(executor,position);
                     }
@@ -253,12 +254,14 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
 
         @Override
         protected Bitmap doInBackground(Integer... params) {
+            Log.e("doInBackground", params[0] + " -start- " + System.currentTimeMillis());
             return mmr.getFrameAtTime(params[0] * 1000 * 1000, MediaMetadataRetriever.OPTION_PREVIOUS_SYNC);
         }
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             if (bitmap != null) {
+                Log.e("onPostExecute", imageView.getTag() + " -end- " + System.currentTimeMillis());
                 imageView.setImageBitmap(bitmap);
             }
         }
