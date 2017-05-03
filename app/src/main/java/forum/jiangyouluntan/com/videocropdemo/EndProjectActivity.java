@@ -256,9 +256,11 @@ public class EndProjectActivity extends AppCompatActivity {
 
         @Override
         protected Integer doInBackground(Integer... params) {
+            MediaMetadataRetriever metadataRetriever = null;
             try {
                 int position = params[0];
-                MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
+                Log.e("doInBackground", position + "--start==>" + System.currentTimeMillis());
+                metadataRetriever = new MediaMetadataRetriever();
                 metadataRetriever.setDataSource(videp_path);
                 Bitmap bitmap = mmr.getFrameAtTime(position * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
                 if (bitmap != null) {
@@ -275,6 +277,8 @@ public class EndProjectActivity extends AppCompatActivity {
                 return -1;
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
+            } finally {
+                metadataRetriever.release();
             }
             return -1;
         }
@@ -282,6 +286,7 @@ public class EndProjectActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Integer integer) {
             if (adapter != null && integer != -1) {
+                Log.e("onPostExecute", integer + "--end==>" + System.currentTimeMillis());
                 adapter.notifyItemChanged(integer);
             }
         }
