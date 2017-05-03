@@ -129,6 +129,7 @@ public class EndProjectActivity extends AppCompatActivity {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    Log.e("onScrollStateChanged","滑动停止");
                     videoView.seekTo(getCurrentTime(mCurrentX, mCurrentY));
                     seekBar.resetIndicatorAnimator();
                 }
