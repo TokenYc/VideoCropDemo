@@ -66,4 +66,11 @@
         android:layout_height="wrap_content"
         android:text="EndProject"
         android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/btn_clearCache"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="清除缓存图片"
+        android:textAllCaps="false" />
 </LinearLayout>

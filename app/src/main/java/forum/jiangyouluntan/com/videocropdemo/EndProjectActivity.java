@@ -33,16 +33,13 @@ import forum.jiangyouluntan.com.videocropdemo.TwoSideSeekBar.TwoSideSeekBar;
 import forum.jiangyouluntan.com.videocropdemo.entity.VideoImageEntity;
 import forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView;
 import forum.jiangyouluntan.com.videocropdemo.utils.BitmapUtils;
+import forum.jiangyouluntan.com.videocropdemo.utils.FileUtils;
 
 /**
  * Created by wangjing on 2017/5/3.
  */
 
 public class EndProjectActivity extends AppCompatActivity {
-    private final static String IMAGE_TYPE = ".jpeg";
-    private final String ROOT_PATH = getInnerSDCardPath() + "/相机";
-    private final String DIR_PATH = ROOT_PATH + "/images/";
-
     private TextureVideoView videoView;
     private RecyclerView recyclerView;
     private TwoSideSeekBar seekBar;
@@ -115,12 +112,12 @@ public class EndProjectActivity extends AppCompatActivity {
 
     private void initRecyclerVie() {
         infos = new ArrayList<>();
-        File file = new File(DIR_PATH);
+        File file = new File(FileUtils.DIR_PATH);
         if (!file.exists()) {
             file.mkdirs();
         }
         for (int i = 0; i < Integer.parseInt(videoDuration) / 1000 + 2; i++) {
-            infos.add(new VideoImageEntity(DIR_PATH + video_name + "_" + i + ".jpeg"));
+            infos.add(new VideoImageEntity(FileUtils.DIR_PATH + video_name + "_" + i + FileUtils.IMAGE_TYPE));
         }
         adapter = new MyAdapter();
         recyclerView.setAdapter(adapter);
@@ -222,7 +219,7 @@ public class EndProjectActivity extends AppCompatActivity {
                                 Bitmap bitmap = mmr.getFrameAtTime(position * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
                                 if (bitmap != null) {
                                     Bitmap scaleBitmap = BitmapUtils.scaleBitmap(bitmap, 100 * 1.0f / bitmap.getWidth(), bitmap.getWidth(), bitmap.getHeight());
-                                    boolean issave = BitmapUtils.saveSViewoBitmapToSdCard(scaleBitmap, DIR_PATH, video_name + "_" + position + ".jpeg");
+                                    boolean issave = BitmapUtils.saveSViewoBitmapToSdCard(scaleBitmap, FileUtils.DIR_PATH, video_name + "_" + position + FileUtils.IMAGE_TYPE);
                                     if (scaleBitmap != null && !scaleBitmap.isRecycled()) {
                                         scaleBitmap.recycle();
                                         scaleBitmap = null;
@@ -268,15 +265,6 @@ public class EndProjectActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * 获取内置SD卡路径
-     *
-     * @return
-     */
-    private String getInnerSDCardPath() {
-        return Environment.getExternalStorageDirectory().getPath();
-    }
-
     private int dp2px(Context context, int dpValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dpValue * scale + 0.5f);
@@ -296,7 +284,7 @@ public class EndProjectActivity extends AppCompatActivity {
                 Bitmap bitmap = mmr.getFrameAtTime(position * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
                 if (bitmap != null) {
                     Bitmap scaleBitmap = BitmapUtils.scaleBitmap(bitmap, 100 * 1.0f / bitmap.getWidth(), bitmap.getWidth(), bitmap.getHeight());
-                    boolean issave = BitmapUtils.saveSViewoBitmapToSdCard(scaleBitmap, DIR_PATH, video_name + "_" + position + ".jpeg");
+                    boolean issave = BitmapUtils.saveSViewoBitmapToSdCard(scaleBitmap, FileUtils.DIR_PATH, video_name + "_" + position + FileUtils.IMAGE_TYPE);
                     if (scaleBitmap != null && !scaleBitmap.isRecycled()) {
                         scaleBitmap.recycle();
                         scaleBitmap = null;

@@ -11,11 +11,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.File;
+
+import forum.jiangyouluntan.com.videocropdemo.utils.FileUtils;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int REQUEST_CODE = 520;
 
-    private Button btn_chooseVideo, btn_FFmpegAndroidLibraryActivity, btn_androidffmpeglibrary, btn_FFmpegAndroidLibraryGetAllImageActivity, btn_MediaCodecActivity, btn_MediaMetadataRetrieverActivity, btn_FFmpegMediaMetadataRetrieverActivity
-            ,btn_MediaMetadataRetrieverVideoViewActivity,btn_End;
+    private Button btn_chooseVideo, btn_FFmpegAndroidLibraryActivity, btn_androidffmpeglibrary, btn_FFmpegAndroidLibraryGetAllImageActivity, btn_MediaCodecActivity, btn_MediaMetadataRetrieverActivity, btn_FFmpegMediaMetadataRetrieverActivity, btn_MediaMetadataRetrieverVideoViewActivity, btn_End, btn_clearCache;
 
 
     @Override
@@ -37,7 +40,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_MediaMetadataRetrieverActivity = (Button) findViewById(R.id.btn_MediaMetadataRetrieverActivity);
         btn_FFmpegMediaMetadataRetrieverActivity = (Button) findViewById(R.id.btn_FFmpegMediaMetadataRetrieverActivity);
         btn_MediaMetadataRetrieverVideoViewActivity = (Button) findViewById(R.id.btn_MediaMetadataRetrieverVideoViewActivity);
-        btn_End= (Button) findViewById(R.id.btn_End);
+        btn_End = (Button) findViewById(R.id.btn_End);
+        btn_clearCache = (Button) findViewById(R.id.btn_clearCache);
 
     }
 
@@ -51,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_FFmpegMediaMetadataRetrieverActivity.setOnClickListener(this);
         btn_MediaMetadataRetrieverVideoViewActivity.setOnClickListener(this);
         btn_End.setOnClickListener(this);
+        btn_clearCache.setOnClickListener(this);
     }
 
     @Override
@@ -107,6 +112,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return;
                 }
                 startActivity(new Intent(this, EndProjectActivity.class).putExtra("videp_path", "" + btn_chooseVideo.getText().toString()));
+                break;
+            case R.id.btn_clearCache:
+                FileUtils.clearImageCache(new File(FileUtils.DIR_PATH));
+                Toast.makeText(this, "清除成功", Toast.LENGTH_SHORT).show();
                 break;
 
         }
