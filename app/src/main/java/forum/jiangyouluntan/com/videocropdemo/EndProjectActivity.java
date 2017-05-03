@@ -60,7 +60,7 @@ public class EndProjectActivity extends AppCompatActivity {
 
     private List<VideoImageEntity> infos;//recyclerview集合
 
-    private ExecutorService executorService = Executors.newFixedThreadPool(8);
+//    private ExecutorService executorService = Executors.newFixedThreadPool(8);
 
 
     @Override
@@ -180,9 +180,6 @@ public class EndProjectActivity extends AppCompatActivity {
             //释放资源
             mmr.release();
         }
-        if (executorService != null) {
-            executorService.shutdownNow();
-        }
     }
 
     class MyAdapter extends RecyclerView.Adapter {
@@ -211,7 +208,7 @@ public class EndProjectActivity extends AppCompatActivity {
                 if (!info.isAsync()) {
 //                    new ExtractFrameWorkTask().execute(position);
                     ExtractFrameWorkTask task = new ExtractFrameWorkTask();
-                    task.executeOnExecutor(executorService, position);
+                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, position);
                 }
             }
         }
