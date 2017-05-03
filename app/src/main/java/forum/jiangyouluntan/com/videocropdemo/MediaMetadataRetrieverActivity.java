@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -113,6 +114,7 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -153,6 +155,14 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
         videoView.start();
     }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mmr!=null){
+            mmr.release();
+        }
+    }
 
     class MyAdapter extends RecyclerView.Adapter {
 
@@ -298,51 +308,4 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
     public String getInnerSDCardPath() {
         return Environment.getExternalStorageDirectory().getPath();
     }
-
-
-    /**
-     * 毫秒转化时分秒毫秒
-     */
-    public static String getTime(Long ms) {
-        Integer ss = 1000;
-        Integer mi = ss * 60;
-        Integer hh = mi * 60;
-        Integer dd = hh * 24;
-
-        Long day = ms / dd;
-        Long hour = (ms - day * dd) / hh;
-        Long minute = (ms - day * dd - hour * hh) / mi;
-        Long second = (ms - day * dd - hour * hh - minute * mi) / ss;
-
-        StringBuffer sb = new StringBuffer();
-        if (hour > 0) {
-            if (hour > 9) {
-                sb.append(hour + ":");
-            } else {
-                sb.append("0" + hour + ":");
-            }
-        } else {
-            sb.append("00:");
-        }
-        if (minute > 0) {
-            if (minute > 9) {
-                sb.append(minute + ":");
-            } else {
-                sb.append("0" + minute + ":");
-            }
-        } else {
-            sb.append("00:");
-        }
-        if (second > 0) {
-            if (second > 9) {
-                sb.append(second);
-            } else {
-                sb.append("0" + second);
-            }
-        } else {
-            sb.append("00");
-        }
-        return sb.toString();
-    }
-
 }
