@@ -24,13 +24,9 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import forum.jiangyouluntan.com.videocropdemo.TwoSideSeekBar.TwoSideSeekBar;
 import forum.jiangyouluntan.com.videocropdemo.entity.VideoImageEntity;
@@ -48,13 +44,13 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
     private LinearLayoutManager linearLayoutManager;
     private Bitmap bitmap;
     private MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-    private Executor executor;
     private float mCurrentX;
     private float mCurrentY = 0;
     private String videoDuration;
 
     private List<VideoImageEntity> infos;
     private String videp_path;
+    private String video_name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,13 +66,11 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
             Toast.makeText(this, "视频路径不正确！！！", Toast.LENGTH_SHORT).show();
             return;
         }
+        video_name = file.getName().replace(".mp4", "");
         Log.e("FILE_PATH", "FILE_PATH==>" + videp_path);
+        Log.e("video_name", "video_name==>" + video_name);
         mmr.setDataSource(videp_path);
-        executor = Executors.newFixedThreadPool(1);
         initVideoSize();
-//        executor.execute(futureTask);
-        //允许在同一时刻有15个任务正在执行，并且最多能够存储200个任务。
-        executor = new ThreadPoolExecutor(15, 200, 10, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 
         initRecyclerView();
         mCurrentX = dp2px(this, 30);
@@ -113,7 +107,7 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
             file.mkdirs();
         }
         for (int i = 0; i < Integer.parseInt(videoDuration) / 1000 + 2; i++) {
-            infos.add(new VideoImageEntity(DIR_PATH + i + ".jpg"));
+            infos.add(new VideoImageEntity(DIR_PATH + video_name + "_" + i + ".jpg"));
         }
         adapter = new MyAdapter();
         recyclerView.setAdapter(adapter);
@@ -185,17 +179,13 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
                             .centerCrop()
                             .into(viewHolder.imvCrop);
                 } else {//不存在
-                    File file = new File(DIR_PATH + position + ".jpg");
+                    File file = new File(DIR_PATH + video_name + "_" + position + ".jpg");
                     if (file.exists()) {//文件夹中存在相同名字的图片直接加载
                         Log.e("onBindViewHolder", "position=>" + position + "info图片不存在,SD卡存在");
                         viewHolder.imvCrop.setImageBitmap(BitmapFactory.decodeFile(file.getPath()));
                     } else {
                         Log.e("onBindViewHolder", "position=>" + position + "图片不存在");
-//                        viewHolder.imvCrop.setImageBitmap(mmr.getFrameAtTime(position * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC));
-//                        getImage(viewHolder.imvCrop, position);
-                        viewHolder.imvCrop.setTag(position);
-                        new getVideoFrameTask(viewHolder.imvCrop).execute(position);
-//                        new GetVideoFrameTask(viewHolder.imvCrop).executeOnExecutor(executor,position);
+                        new getVideoFrameTask(viewHolder.imvCrop,position).execute(position);
                     }
                 }
             }
@@ -228,15 +218,6 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
         return (position - 1) * 1000;
     }
 
-    private BitmapFactory.Options getBitmapOption(int inSampleSize) {
-        System.gc();
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPurgeable = true;
-        options.inSampleSize = inSampleSize;
-        options.inPreferredConfig = Bitmap.Config.ARGB_4444;
-        return options;
-    }
-
     private int dp2px(Context context, int dpValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dpValue * scale + 0.5f);
@@ -246,25 +227,66 @@ public class MediaMetadataRetrieverActivity extends AppCompatActivity {
     class getVideoFrameTask extends AsyncTask<Integer, Integer, Bitmap> {
 
         private ImageView imageView;
+        private int position;
 
-        public getVideoFrameTask(ImageView imageView) {
+        public getVideoFrameTask(ImageView imageView, int position) {
             this.imageView = imageView;
+            this.position = position;
         }
 
 
         @Override
         protected Bitmap doInBackground(Integer... params) {
             Log.e("doInBackground", params[0] + " -start- " + System.currentTimeMillis());
-            return mmr.getFrameAtTime(params[0] * 1000 * 1000, MediaMetadataRetriever.OPTION_PREVIOUS_SYNC);
+            return mmr.getFrameAtTime(params[0] * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
         }
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             if (bitmap != null) {
-                Log.e("onPostExecute", imageView.getTag() + " -end- " + System.currentTimeMillis());
+                Log.e("onPostExecute", position + " -end- " + System.currentTimeMillis());
+                new saveImageTask(position).execute(bitmap);
                 imageView.setImageBitmap(bitmap);
             }
         }
+    }
+
+    class saveImageTask extends AsyncTask<Bitmap, Integer, Boolean> {
+
+        private int position;
+
+        public saveImageTask(int position) {
+            this.position = position;
+        }
+
+        @Override
+        protected Boolean doInBackground(Bitmap... params) {
+            Bitmap bitmap = params[0];
+            if (bitmap != null) {
+                FileOutputStream fout = null;
+                try {
+                    File f = new File(DIR_PATH + video_name + "_" + position + ".jpg");
+                    f.createNewFile();
+                    fout = new FileOutputStream(f);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 80, fout);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        fout.flush();
+                        fout.close();
+                        if (bitmap != null && !bitmap.isRecycled()) {
+                            bitmap.recycle();
+                            bitmap = null;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return null;
+        }
+
     }
 
 
