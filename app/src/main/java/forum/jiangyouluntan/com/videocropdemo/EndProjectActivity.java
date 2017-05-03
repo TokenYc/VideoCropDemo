@@ -3,6 +3,7 @@ package forum.jiangyouluntan.com.videocropdemo;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
@@ -25,16 +26,20 @@ import com.bumptech.glide.Glide;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import forum.jiangyouluntan.com.videocropdemo.TwoSideSeekBar.TwoSideSeekBar;
 import forum.jiangyouluntan.com.videocropdemo.entity.VideoImageEntity;
 import forum.jiangyouluntan.com.videocropdemo.listVideo.widget.TextureVideoView;
+import forum.jiangyouluntan.com.videocropdemo.utils.BitmapUtils;
 
 /**
  * Created by wangjing on 2017/5/3.
  */
 
 public class EndProjectActivity extends AppCompatActivity {
+    private final static String IMAGE_TYPE = ".jpeg";
     private final String ROOT_PATH = getInnerSDCardPath() + "/相机";
     private final String DIR_PATH = ROOT_PATH + "/images/";
 
@@ -54,6 +59,8 @@ public class EndProjectActivity extends AppCompatActivity {
     private float mCurrentY = 0;
 
     private List<VideoImageEntity> infos;//recyclerview集合
+
+    private ExecutorService executorService = Executors.newFixedThreadPool(8);
 
 
     @Override
@@ -111,7 +118,7 @@ public class EndProjectActivity extends AppCompatActivity {
             file.mkdirs();
         }
         for (int i = 0; i < Integer.parseInt(videoDuration) / 1000 + 2; i++) {
-            infos.add(new VideoImageEntity(DIR_PATH + video_name + "_" + i + ".jpg"));
+            infos.add(new VideoImageEntity(DIR_PATH + video_name + "_" + i + ".jpeg"));
         }
         adapter = new MyAdapter();
         recyclerView.setAdapter(adapter);
@@ -193,15 +200,14 @@ public class EndProjectActivity extends AppCompatActivity {
                     .centerCrop()
                     .placeholder(R.color.colorPlaceHolder)
                     .into(viewHolder.imvCrop);
-
             if (!TextUtils.isEmpty(info.getImagePath()) && new File(info.getImagePath()).exists()) {//如果图片路径不为空或者路径图片存在
                 Log.e("onBindViewHolder", "position=>" + position + "图片存在");
+                info.setAsync(true);
             } else {//不存在
-                File file = new File(DIR_PATH + video_name + "_" + position + ".jpg");
-                if (file.exists()) {//文件夹中存在相同名字的图片直接加载
-                    Log.e("onBindViewHolder", "position=>" + position + "info图片不存在,SD卡存在");
-                } else {
-                    Log.e("onBindViewHolder", "position=>" + position + "图片不存在");
+                Log.e("onBindViewHolder", "position=>" + position + "图片不存在");
+                if (!info.isAsync()) {
+                    new ExtractFrameWorkTask().execute(position);
+//                    new ExtractFrameWorkTask().executeOnExecutor(executorService);
                 }
             }
         }
@@ -238,5 +244,36 @@ public class EndProjectActivity extends AppCompatActivity {
     private int dp2px(Context context, int dpValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dpValue * scale + 0.5f);
+    }
+
+
+    class ExtractFrameWorkTask extends AsyncTask<Integer, Integer, Integer> {
+
+        @Override
+        protected Integer doInBackground(Integer... params) {
+            int position = params[0];
+            MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
+            metadataRetriever.setDataSource(videp_path);
+            Bitmap bitmap = mmr.getFrameAtTime(position * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+            if (bitmap != null) {
+                Bitmap scaleBitmap = BitmapUtils.scaleBitmap(bitmap, 100 * 1.0f / bitmap.getWidth(), bitmap.getWidth(), bitmap.getHeight());
+                boolean issave = BitmapUtils.saveSViewoBitmapToSdCard(scaleBitmap, DIR_PATH, video_name + "_" + position + ".jpeg");
+                if (scaleBitmap != null && !scaleBitmap.isRecycled()) {
+                    scaleBitmap.recycle();
+                    scaleBitmap = null;
+                }
+                if (issave) {
+                    return position;
+                }
+            }
+            return -1;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            if (adapter != null && integer != -1) {
+                adapter.notifyItemChanged(integer);
+            }
+        }
     }
 }

@@ -6,9 +6,14 @@ package forum.jiangyouluntan.com.videocropdemo.entity;
 
 public class VideoImageEntity {
     private String imagePath;
+    private boolean isAsync = false;//是否在异步请求了，默认没有
 
+    public boolean isAsync() {
+        return isAsync;
+    }
 
-    public VideoImageEntity() {
+    public void setAsync(boolean async) {
+        isAsync = async;
     }
 
     public VideoImageEntity(String imagePath) {
