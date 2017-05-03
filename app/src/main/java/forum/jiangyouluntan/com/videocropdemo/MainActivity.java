@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int REQUEST_CODE = 520;
 
     private Button btn_chooseVideo, btn_FFmpegAndroidLibraryActivity, btn_androidffmpeglibrary, btn_FFmpegAndroidLibraryGetAllImageActivity, btn_MediaCodecActivity, btn_MediaMetadataRetrieverActivity, btn_FFmpegMediaMetadataRetrieverActivity
-            ,btn_MediaMetadataRetrieverVideoViewActivity;
+            ,btn_MediaMetadataRetrieverVideoViewActivity,btn_End;
 
 
     @Override
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_MediaMetadataRetrieverActivity = (Button) findViewById(R.id.btn_MediaMetadataRetrieverActivity);
         btn_FFmpegMediaMetadataRetrieverActivity = (Button) findViewById(R.id.btn_FFmpegMediaMetadataRetrieverActivity);
         btn_MediaMetadataRetrieverVideoViewActivity = (Button) findViewById(R.id.btn_MediaMetadataRetrieverVideoViewActivity);
-
+        btn_End= (Button) findViewById(R.id.btn_End);
 
     }
 
@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_MediaMetadataRetrieverActivity.setOnClickListener(this);
         btn_FFmpegMediaMetadataRetrieverActivity.setOnClickListener(this);
         btn_MediaMetadataRetrieverVideoViewActivity.setOnClickListener(this);
+        btn_End.setOnClickListener(this);
     }
 
     @Override
@@ -100,6 +101,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return;
                 }
                 startActivity(new Intent(this, MediaMetadataRetrieverVideoViewActivity.class).putExtra("videp_path", "" + btn_chooseVideo.getText().toString()));
+                break;
+            case R.id.btn_End:
+                if (isPathEmpty()) {
+                    return;
+                }
+                startActivity(new Intent(this, EndProjectActivity.class).putExtra("videp_path", "" + btn_chooseVideo.getText().toString()));
                 break;
 
         }

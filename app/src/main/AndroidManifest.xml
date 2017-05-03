@@ -26,6 +26,7 @@
         <activity android:name=".MediaMetadataRetrieverActivity"/>
         <activity android:name=".FFmpegMediaMetadataRetrieverActivity"/>
         <activity android:name=".MediaMetadataRetrieverVideoViewActivity"/>
+        <activity android:name=".EndProjectActivity"/>
     </application>
 
 </manifest>
