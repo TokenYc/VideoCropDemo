@@ -210,7 +210,6 @@ public class EndProjectActivity extends AppCompatActivity {
                 Log.e("onBindViewHolder", "position=>" + position + "图片不存在");
                 if (!info.isAsync()) {
 //                    new ExtractFrameWorkTask().execute(position);
-
                     ExtractFrameWorkTask task = new ExtractFrameWorkTask();
                     task.executeOnExecutor(executorService, position);
                 }
