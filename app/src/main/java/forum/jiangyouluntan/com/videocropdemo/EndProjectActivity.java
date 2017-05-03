@@ -60,10 +60,12 @@ public class EndProjectActivity extends AppCompatActivity {
 
     private List<VideoImageEntity> infos;//recyclerview集合
 
-//    private ExecutorService executorService = Executors.newFixedThreadPool(8);
+    //    private ExecutorService executorService = Executors.newFixedThreadPool(8);
+    private ExecutorService cacheThreadPool = Executors.newCachedThreadPool();
 
 
     @Override
+
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_endproject);
@@ -207,8 +209,41 @@ public class EndProjectActivity extends AppCompatActivity {
                 Log.e("onBindViewHolder", "position=>" + position + "图片不存在");
                 if (!info.isAsync()) {
 //                    new ExtractFrameWorkTask().execute(position);
-                    ExtractFrameWorkTask task = new ExtractFrameWorkTask();
-                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, position);
+//                    ExtractFrameWorkTask task = new ExtractFrameWorkTask();
+//                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, position);
+                    cacheThreadPool.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            MediaMetadataRetriever metadataRetriever = null;
+                            try {
+                                Log.e("doInBackground", position + "--start==>" + System.currentTimeMillis());
+                                metadataRetriever = new MediaMetadataRetriever();
+                                metadataRetriever.setDataSource(videp_path);
+                                Bitmap bitmap = mmr.getFrameAtTime(position * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+                                if (bitmap != null) {
+                                    Bitmap scaleBitmap = BitmapUtils.scaleBitmap(bitmap, 100 * 1.0f / bitmap.getWidth(), bitmap.getWidth(), bitmap.getHeight());
+                                    boolean issave = BitmapUtils.saveSViewoBitmapToSdCard(scaleBitmap, DIR_PATH, video_name + "_" + position + ".jpeg");
+                                    if (scaleBitmap != null && !scaleBitmap.isRecycled()) {
+                                        scaleBitmap.recycle();
+                                        scaleBitmap = null;
+                                    }
+                                    if (issave) {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                adapter.notifyItemChanged(position);
+                                            }
+                                        });
+
+                                    }
+                                }
+                            } catch (IllegalArgumentException e) {
+                                e.printStackTrace();
+                            } finally {
+                                metadataRetriever.release();
+                            }
+                        }
+                    });
                 }
             }
         }
@@ -287,4 +322,6 @@ public class EndProjectActivity extends AppCompatActivity {
             }
         }
     }
+
+
 }
