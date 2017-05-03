@@ -180,6 +180,9 @@ public class EndProjectActivity extends AppCompatActivity {
             //释放资源
             mmr.release();
         }
+        if (executorService != null) {
+            executorService.shutdownNow();
+        }
     }
 
     class MyAdapter extends RecyclerView.Adapter {
@@ -206,8 +209,10 @@ public class EndProjectActivity extends AppCompatActivity {
             } else {//不存在
                 Log.e("onBindViewHolder", "position=>" + position + "图片不存在");
                 if (!info.isAsync()) {
-                    new ExtractFrameWorkTask().execute(position);
-//                    new ExtractFrameWorkTask().executeOnExecutor(executorService);
+//                    new ExtractFrameWorkTask().execute(position);
+
+                    ExtractFrameWorkTask task = new ExtractFrameWorkTask();
+                    task.executeOnExecutor(executorService, position);
                 }
             }
         }
@@ -251,20 +256,25 @@ public class EndProjectActivity extends AppCompatActivity {
 
         @Override
         protected Integer doInBackground(Integer... params) {
-            int position = params[0];
-            MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
-            metadataRetriever.setDataSource(videp_path);
-            Bitmap bitmap = mmr.getFrameAtTime(position * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
-            if (bitmap != null) {
-                Bitmap scaleBitmap = BitmapUtils.scaleBitmap(bitmap, 100 * 1.0f / bitmap.getWidth(), bitmap.getWidth(), bitmap.getHeight());
-                boolean issave = BitmapUtils.saveSViewoBitmapToSdCard(scaleBitmap, DIR_PATH, video_name + "_" + position + ".jpeg");
-                if (scaleBitmap != null && !scaleBitmap.isRecycled()) {
-                    scaleBitmap.recycle();
-                    scaleBitmap = null;
+            try {
+                int position = params[0];
+                MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
+                metadataRetriever.setDataSource(videp_path);
+                Bitmap bitmap = mmr.getFrameAtTime(position * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+                if (bitmap != null) {
+                    Bitmap scaleBitmap = BitmapUtils.scaleBitmap(bitmap, 100 * 1.0f / bitmap.getWidth(), bitmap.getWidth(), bitmap.getHeight());
+                    boolean issave = BitmapUtils.saveSViewoBitmapToSdCard(scaleBitmap, DIR_PATH, video_name + "_" + position + ".jpeg");
+                    if (scaleBitmap != null && !scaleBitmap.isRecycled()) {
+                        scaleBitmap.recycle();
+                        scaleBitmap = null;
+                    }
+                    if (issave) {
+                        return position;
+                    }
                 }
-                if (issave) {
-                    return position;
-                }
+                return -1;
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
             }
             return -1;
         }
