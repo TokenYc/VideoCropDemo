@@ -1,5 +1,6 @@
 package forum.jiangyouluntan.com.videocropdemo;
 
+import android.Manifest;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -7,14 +8,17 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.PermissionListener;
+import com.yanzhenjie.permission.Rationale;
+import com.yanzhenjie.permission.RationaleListener;
 
 import java.io.File;
+import java.util.List;
 
 import forum.jiangyouluntan.com.videocropdemo.utils.FileUtils;
 
@@ -23,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Button btn_chooseVideo, btn_FFmpegAndroidLibraryActivity, btn_androidffmpeglibrary, btn_FFmpegAndroidLibraryGetAllImageActivity, btn_MediaCodecActivity, btn_MediaMetadataRetrieverActivity, btn_FFmpegMediaMetadataRetrieverActivity, btn_MediaMetadataRetrieverVideoViewActivity, btn_End, btn_clearCache;
 
+    private boolean isgetPermission = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +36,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initView();
         initListener();
+
+        getPermission();
+
     }
+
+    private void getPermission() {
+        AndPermission.with(this)
+                .requestCode(100)
+                .permission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .callback(listener)
+                .rationale(new RationaleListener() {
+                    @Override
+                    public void showRequestPermissionRationale(int requestCode, Rationale rationale) {
+                        AndPermission.rationaleDialog(MainActivity.this, rationale).show();
+                    }
+                })
+                .start();
+    }
+
+    private PermissionListener listener = new PermissionListener() {
+        @Override
+        public void onSucceed(int requestCode, List<String> grantedPermissions) {
+            // 权限申请成功回调。
+            // 这里的requestCode就是申请时设置的requestCode。
+            // 和onActivityResult()的requestCode一样，用来区分多个不同的请求。
+            if (requestCode == 100) {
+                isgetPermission = true;
+            }
+        }
+
+        @Override
+        public void onFailed(int requestCode, List<String> deniedPermissions) {
+            // 权限申请失败回调。
+            if (requestCode == 100) {
+                isgetPermission = false;
+            }
+        }
+    };
 
 
     private void initView() {
@@ -136,6 +178,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean isPathEmpty() {
         if (TextUtils.isEmpty(btn_chooseVideo.getText().toString())) {
             Toast.makeText(this, "请先选择视频", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        if (!isgetPermission) {
+            getPermission();
             return true;
         }
         return false;
