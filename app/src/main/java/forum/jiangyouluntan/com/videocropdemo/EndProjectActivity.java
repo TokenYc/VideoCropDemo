@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -56,6 +55,8 @@ public class EndProjectActivity extends AppCompatActivity {
     private float mCurrentY = 0;
 
     private List<VideoImageEntity> infos;//recyclerview集合
+
+    private boolean isScroll=false;//是否正在滑动
 
     //    private ExecutorService executorService = Executors.newFixedThreadPool(8);
     private ExecutorService cacheThreadPool = Executors.newCachedThreadPool();
@@ -129,15 +130,19 @@ public class EndProjectActivity extends AppCompatActivity {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    Log.e("onScrollStateChanged","滑动停止");
+                    Log.e("onScrollStateChanged", "滑动停止");
+                    isScroll=false;
                     videoView.seekTo(getCurrentTime(mCurrentX, mCurrentY));
                     seekBar.resetIndicatorAnimator();
+                    adapter.notifyDataSetChanged();
                 }
             }
 
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+                Log.e("onScrolled", "滑动了");
+                isScroll=true;
             }
         });
     }
@@ -209,39 +214,43 @@ public class EndProjectActivity extends AppCompatActivity {
 //                    new ExtractFrameWorkTask().execute(position);
 //                    ExtractFrameWorkTask task = new ExtractFrameWorkTask();
 //                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, position);
-                    cacheThreadPool.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            MediaMetadataRetriever metadataRetriever = null;
-                            try {
-                                Log.e("doInBackground", position + "--start==>" + System.currentTimeMillis());
-                                metadataRetriever = new MediaMetadataRetriever();
-                                metadataRetriever.setDataSource(videp_path);
-                                Bitmap bitmap = mmr.getFrameAtTime(position * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
-                                if (bitmap != null) {
-                                    Bitmap scaleBitmap = BitmapUtils.scaleBitmap(bitmap, 100 * 1.0f / bitmap.getWidth(), bitmap.getWidth(), bitmap.getHeight());
-                                    boolean issave = BitmapUtils.saveSViewoBitmapToSdCard(scaleBitmap, FileUtils.DIR_PATH, video_name + "_" + position + FileUtils.IMAGE_TYPE);
-                                    if (scaleBitmap != null && !scaleBitmap.isRecycled()) {
-                                        scaleBitmap.recycle();
-                                        scaleBitmap = null;
-                                    }
-                                    if (issave) {
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                adapter.notifyItemChanged(position);
-                                            }
-                                        });
+                    if (!cacheThreadPool.isShutdown()&&!isScroll) {
+                        info.setAsync(true);
+                        cacheThreadPool.execute(new Runnable() {
+                            @Override
+                            public void run() {
 
+                                MediaMetadataRetriever metadataRetriever = null;
+                                try {
+                                    Log.e("doInBackground", position + "--start==>" + System.currentTimeMillis());
+                                    metadataRetriever = new MediaMetadataRetriever();
+                                    metadataRetriever.setDataSource(videp_path);
+                                    Bitmap bitmap = mmr.getFrameAtTime(position * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+                                    if (bitmap != null) {
+                                        Bitmap scaleBitmap = BitmapUtils.scaleBitmap(bitmap, 100 * 1.0f / bitmap.getWidth(), bitmap.getWidth(), bitmap.getHeight());
+                                        boolean issave = BitmapUtils.saveSViewoBitmapToSdCard(scaleBitmap, FileUtils.DIR_PATH, video_name + "_" + position + FileUtils.IMAGE_TYPE);
+                                        if (scaleBitmap != null && !scaleBitmap.isRecycled()) {
+                                            scaleBitmap.recycle();
+                                            scaleBitmap = null;
+                                        }
+                                        if (issave) {
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    adapter.notifyItemChanged(position);
+                                                }
+                                            });
+
+                                        }
                                     }
+                                } catch (IllegalArgumentException e) {
+                                    e.printStackTrace();
+                                } finally {
+                                    metadataRetriever.release();
                                 }
-                            } catch (IllegalArgumentException e) {
-                                e.printStackTrace();
-                            } finally {
-                                metadataRetriever.release();
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             }
         }

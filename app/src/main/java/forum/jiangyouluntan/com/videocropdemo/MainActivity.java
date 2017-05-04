@@ -7,9 +7,12 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 
 import java.io.File;
 
@@ -115,7 +118,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btn_clearCache:
                 FileUtils.clearImageCache(new File(FileUtils.DIR_PATH));
-                Toast.makeText(this, "清除成功", Toast.LENGTH_SHORT).show();
+//                Glide.get(getApplicationContext()).clearMemory();
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Glide.get(getApplicationContext()).clearDiskCache();
+//                        Log.e("onClick","清除成功");
+//
+//                    }
+//                });
+                Toast.makeText(MainActivity.this, "清除成功", Toast.LENGTH_SHORT).show();
                 break;
 
         }
