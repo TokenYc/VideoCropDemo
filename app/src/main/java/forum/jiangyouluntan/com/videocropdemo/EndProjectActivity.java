@@ -230,9 +230,9 @@ public class EndProjectActivity extends AppCompatActivity {
                                     Log.e("doInBackground", position + "--start==>" + System.currentTimeMillis());
                                     metadataRetriever = new MediaMetadataRetriever();
                                     metadataRetriever.setDataSource(videp_path);
-                                    Bitmap bitmap = mmr.getFrameAtTime(position * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+                                    Bitmap bitmap = metadataRetriever.getFrameAtTime(position * 1000 * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
                                     if (bitmap != null) {
-                                        Bitmap scaleBitmap = BitmapUtils.scaleBitmap(bitmap, 100 * 1.0f / bitmap.getWidth(), bitmap.getWidth(), bitmap.getHeight());
+                                        Bitmap scaleBitmap = BitmapUtils.scaleBitmap(bitmap, seekBar.getSingleWidth() * 1.0f / bitmap.getWidth(), bitmap.getWidth(), bitmap.getHeight());
                                         boolean issave = BitmapUtils.saveSViewoBitmapToSdCard(scaleBitmap, FileUtils.DIR_PATH, video_name + "_" + position + FileUtils.IMAGE_TYPE);
                                         if (scaleBitmap != null && !scaleBitmap.isRecycled()) {
                                             scaleBitmap.recycle();
