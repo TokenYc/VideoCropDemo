@@ -56,7 +56,7 @@ public class EndProjectActivity extends AppCompatActivity {
 
     private List<VideoImageEntity> infos;//recyclerview集合
 
-    private boolean isScroll=false;//是否正在滑动
+    private boolean isScroll = false;//是否正在滑动
 
     //    private ExecutorService executorService = Executors.newFixedThreadPool(8);
     private ExecutorService cacheThreadPool = Executors.newCachedThreadPool();
@@ -131,7 +131,7 @@ public class EndProjectActivity extends AppCompatActivity {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     Log.e("onScrollStateChanged", "滑动停止");
-                    isScroll=false;
+                    isScroll = false;
                     videoView.seekTo(getCurrentTime(mCurrentX, mCurrentY));
                     seekBar.resetIndicatorAnimator();
                     adapter.notifyDataSetChanged();
@@ -142,7 +142,7 @@ public class EndProjectActivity extends AppCompatActivity {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 Log.e("onScrolled", "滑动了");
-                isScroll=true;
+                isScroll = true;
             }
         });
     }
@@ -187,6 +187,9 @@ public class EndProjectActivity extends AppCompatActivity {
 
             seekBar.release();
         }
+        if (cacheThreadPool != null) {
+            cacheThreadPool.shutdown();
+        }
     }
 
     class MyAdapter extends RecyclerView.Adapter {
@@ -216,7 +219,7 @@ public class EndProjectActivity extends AppCompatActivity {
 //                    new ExtractFrameWorkTask().execute(position);
 //                    ExtractFrameWorkTask task = new ExtractFrameWorkTask();
 //                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, position);
-                    if (!cacheThreadPool.isShutdown()&&!isScroll) {
+                    if (!cacheThreadPool.isShutdown() && !isScroll) {
                         info.setAsync(true);
                         cacheThreadPool.execute(new Runnable() {
                             @Override
