@@ -184,6 +184,8 @@ public class EndProjectActivity extends AppCompatActivity {
         if (mmr != null) {
             //释放资源
             mmr.release();
+
+            seekBar.release();
         }
     }
 

@@ -209,6 +209,8 @@ public class TwoSideSeekBar extends View {
 
     public void cancelIndicatorAnimator() {
         if (mIndicatorAnimator != null && mIndicatorAnimator.isRunning()) {
+            mIndicatorAnimator.removeAllUpdateListeners();
+            mIndicatorAnimator.removeAllListeners();
             mIndicatorAnimator.cancel();
         }
     }
@@ -395,6 +397,12 @@ public class TwoSideSeekBar extends View {
 
     public void setOnVideoStateChangeListener(OnVideoStateChangeListener listener) {
         this.mVideoStateChangeListener = listener;
+    }
+
+    public void release(){
+        mIndicatorAnimator.removeAllListeners();
+        mIndicatorAnimator.removeAllUpdateListeners();
+        mIndicatorAnimator.cancel();
     }
 
 }
