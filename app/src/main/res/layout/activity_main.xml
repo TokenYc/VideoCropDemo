@@ -1,76 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-    <Button
-        android:id="@+id/btn_chooseVideo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:hint="请先选择视频地址"
-        android:textAllCaps="false" />
+    android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/btn_FFmpegAndroidLibraryActivity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="FFmpegAndroidLibraryActivity"
-        android:textAllCaps="false" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/btn_androidffmpeglibrary"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="androidffmpeglibrary"
-        android:textAllCaps="false" />
+        <Button
+            android:id="@+id/btn_chooseVideo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="请先选择视频地址"
+            android:text=""
+            android:textAllCaps="false" />
 
-    <Button
-        android:id="@+id/btn_FFmpegAndroidLibraryGetAllImageActivity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="FFmpegAndroidLibraryGetAllImageActivity"
-        android:textAllCaps="false" />
+        <Button
+            android:id="@+id/btn_FFmpegAndroidLibraryActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FFmpegAndroidLibraryActivity"
+            android:textAllCaps="false" />
 
-    <Button
-        android:id="@+id/btn_MediaCodecActivity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="MediaCodecActivity"
-        android:textAllCaps="false" />
+        <Button
+            android:id="@+id/btn_androidffmpeglibrary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="androidffmpeglibrary"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btn_FFmpegAndroidLibraryGetAllImageActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FFmpegAndroidLibraryGetAllImageActivity"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btn_MediaCodecActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MediaCodecActivity"
+            android:textAllCaps="false" />
 
 
-    <Button
-        android:id="@+id/btn_MediaMetadataRetrieverActivity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="MediaMetadataRetrieverActivity"
-        android:textAllCaps="false" />
+        <Button
+            android:id="@+id/btn_MediaMetadataRetrieverActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MediaMetadataRetrieverActivity"
+            android:textAllCaps="false" />
 
-    <Button
-        android:id="@+id/btn_FFmpegMediaMetadataRetrieverActivity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="FFmpegMediaMetadataRetrieverActivity"
-        android:textAllCaps="false" />
-    <Button
-        android:id="@+id/btn_MediaMetadataRetrieverVideoViewActivity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="MediaMetadataRetrieverVideoViewActivity"
-        android:textAllCaps="false" />
+        <Button
+            android:id="@+id/btn_FFmpegMediaMetadataRetrieverActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FFmpegMediaMetadataRetrieverActivity"
+            android:textAllCaps="false" />
 
-    <Button
-        android:id="@+id/btn_End"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="EndProject"
-        android:textAllCaps="false" />
+        <Button
+            android:id="@+id/btn_MediaMetadataRetrieverVideoViewActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MediaMetadataRetrieverVideoViewActivity"
+            android:textAllCaps="false" />
 
-    <Button
-        android:id="@+id/btn_clearCache"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="清除缓存图片"
-        android:textAllCaps="false" />
-</LinearLayout>
+        <Button
+            android:id="@+id/btn_End"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="EndProject"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btn_clearCache"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="清除缓存图片"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btn_cropVideo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="压缩视频"
+            android:textAllCaps="false" />
+    </LinearLayout>
+</ScrollView>

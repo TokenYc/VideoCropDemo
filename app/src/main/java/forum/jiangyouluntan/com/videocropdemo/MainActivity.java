@@ -1,6 +1,7 @@
 package forum.jiangyouluntan.com.videocropdemo;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -21,13 +22,16 @@ import java.io.File;
 import java.util.List;
 
 import forum.jiangyouluntan.com.videocropdemo.utils.FileUtils;
+import forum.jiangyouluntan.com.videocropdemo.utils.VideoDecoder;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int REQUEST_CODE = 520;
 
-    private Button btn_chooseVideo, btn_FFmpegAndroidLibraryActivity, btn_androidffmpeglibrary, btn_FFmpegAndroidLibraryGetAllImageActivity, btn_MediaCodecActivity, btn_MediaMetadataRetrieverActivity, btn_FFmpegMediaMetadataRetrieverActivity, btn_MediaMetadataRetrieverVideoViewActivity, btn_End, btn_clearCache;
+    private Button btn_chooseVideo, btn_FFmpegAndroidLibraryActivity, btn_androidffmpeglibrary, btn_FFmpegAndroidLibraryGetAllImageActivity, btn_MediaCodecActivity, btn_MediaMetadataRetrieverActivity, btn_FFmpegMediaMetadataRetrieverActivity, btn_MediaMetadataRetrieverVideoViewActivity, btn_End, btn_clearCache, btn_cropVideo;
 
     private boolean isgetPermission = false;
+
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_MediaMetadataRetrieverVideoViewActivity = (Button) findViewById(R.id.btn_MediaMetadataRetrieverVideoViewActivity);
         btn_End = (Button) findViewById(R.id.btn_End);
         btn_clearCache = (Button) findViewById(R.id.btn_clearCache);
+        btn_cropVideo = (Button) findViewById(R.id.btn_cropVideo);
 
     }
 
@@ -101,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_MediaMetadataRetrieverVideoViewActivity.setOnClickListener(this);
         btn_End.setOnClickListener(this);
         btn_clearCache.setOnClickListener(this);
+        btn_cropVideo.setOnClickListener(this);
     }
 
     @Override
@@ -170,6 +176,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                    }
 //                });
                 Toast.makeText(MainActivity.this, "清除成功", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.btn_cropVideo:
+                if (isPathEmpty()) {
+                    return;
+                }
+                startActivity(new Intent(this, CropVideoActivity.class).putExtra("videp_path", "" + btn_chooseVideo.getText().toString()));
                 break;
 
         }
