@@ -88,5 +88,12 @@
             android:layout_height="wrap_content"
             android:text="压缩视频"
             android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btn_otherCrop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="先裁剪再转码再压缩"
+            android:textAllCaps="false" />
     </LinearLayout>
 </ScrollView>
