@@ -46,7 +46,7 @@ public class MediaCodecActivity extends AppCompatActivity {
                     videodecoder = new VideoDecode();
                 }
                 try {
-                    videodecoder.setSaveFrames(DIR_PATH, 2);   //这里用于设置输出YUV的位置和YUV的格式
+                    videodecoder.setSaveFrames(DIR_PATH, 3);   //这里用于设置输出YUV的位置和YUV的格式
                     videodecoder.VideoDecodePrepare(video_path);  //这里要输入待解码视频文件的地址
                     videodecoder.excuate();
 
