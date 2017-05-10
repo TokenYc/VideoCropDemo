@@ -10,8 +10,34 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+
+    <TextView
+        android:id="@+id/tv_cutpath"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+    <TextView
+        android:id="@+id/tv_cuttime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/tv_compresspath"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/tv_compresstime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
     <Button
-        android:id="@+id/btn_crop"
+        android:id="@+id/btn_cut"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="开始裁剪" />
+
+    <Button
+        android:id="@+id/btn_compress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="开始压缩" />
