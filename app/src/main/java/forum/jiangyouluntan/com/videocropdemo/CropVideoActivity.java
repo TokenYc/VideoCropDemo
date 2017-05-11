@@ -19,6 +19,8 @@ import com.github.hiteshsondhi88.libffmpeg.LoadBinaryResponseHandler;
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
 
+import java.io.File;
+
 import forum.jiangyouluntan.com.videocropdemo.utils.FileUtils;
 
 
@@ -29,7 +31,7 @@ import forum.jiangyouluntan.com.videocropdemo.utils.FileUtils;
 
 public class CropVideoActivity extends AppCompatActivity {
     private TextView tv_path, tv_cutpath, tv_cuttime, tv_compresstime, tv_compresspath;
-    private Button btn_cut, btn_compress;
+    private Button btn_cut, btn_compress, btn_bitrate;
 
     private String videp_path;//视频路径
 
@@ -82,8 +84,29 @@ public class CropVideoActivity extends AppCompatActivity {
             Toast.makeText(this, "视频路径不能为空", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        /**
+         * 1、设置比特率 " -b:v 1800k"  33s
+         * 2、设置裁剪后视频分辨率 " -s 960x540"
+         * 3、用于指定输出视频的质量，取值范围是0-51，默认值为23，数字越小输出视频的质量越高  " -crf 30 "
+         *
+         */
         final String outPath = FileUtils.ROOT_PATH + "/abcd_compress.mp4";
-        String ffpmegString ="-threads 2"+ " -i " + cutPath + " -vcodec libx264" + " -acodec copy" +" -preset ultrafast"+" -crf 30 " + outPath;
+//        String ffpmegString = "-threads 2" + " -i " + cutPath + " -vcodec libx264" + " -acodec aac" + " -preset ultrafast" + " -b:v 1800k" +" -s 960x540"+ " -crf 30 " + outPath;
+
+        //0 time==>Nexus 5 时间 65s
+//        String ffpmegString = "-threads 2" + " -i " + cutPath + " -vcodec libx264" + " -acodec aac" + " -preset ultrafast " + outPath;
+        //1 time==>Nexus 5 时间 62.2s
+//        String ffpmegString = "-threads 2" + " -i " + cutPath + " -vcodec libx264" + " -acodec aac" + " -preset ultrafast" + " -b:v 1800k " + outPath;
+        //2 time==>Nexus 5 时间 133s
+//        String ffpmegString = "-threads 2" + " -i " + cutPath + " -vcodec libx264" + " -acodec aac" + " -preset ultrafast" + " -s 960x540 " + outPath;
+        //3 time==>Nexus 5 时间 101s
+//        String ffpmegString = "-threads 2" + " -i " + cutPath + " -vcodec libx264" + " -acodec aac" + " -preset ultrafast" + " -crf 30 " + outPath;
+        //1+2 time==>Nexus 5 时间 134s
+//        String ffpmegString = "-threads 2" + " -i " + cutPath + " -vcodec libx264" + " -acodec aac" + " -preset ultrafast" + " -s 960x540" + " -b:v 1800k "  + outPath;
+        //2+3 time==>Nexus 5 时间 134s 此种方式比1+2的视频压缩后的大小小很多
+        String ffpmegString = "-threads 2" + " -i " + cutPath + " -vcodec libx264" + " -acodec aac" + " -preset ultrafast" + " -s 960x540" + " -crf 30 " + outPath;
+
         Log.d("compressVideo", "ffpmegString==>" + ffpmegString);
         String[] command = ffpmegString.split(" ");
         try {
@@ -120,6 +143,7 @@ public class CropVideoActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(String message) {
+                    dissmissDialog();
                     Log.e("onFailure", "" + message);
                 }
 
@@ -132,8 +156,12 @@ public class CropVideoActivity extends AppCompatActivity {
 
     private void cutVideo() {
 //        String ffpmegString = "-ss " + getTime(position * 1000L) + " -i " + videp_path + " -s 40*20 -frames:v 1 " + targetFile.getPath();
+        File file = new File(FileUtils.ROOT_PATH);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
         final String outPath = FileUtils.ROOT_PATH + "/abcd.mp4";
-        String ffpmegString = "-ss " + "00:00:30" + " -t " + "00:00:10" + " -i " + videp_path + " -vcodec copy" + " -acodec copy " + outPath;
+        String ffpmegString = "-ss " + "00:00:10" + " -t " + "00:00:10" + " -i " + videp_path + " -vcodec copy" + " -acodec copy " + outPath;
         Log.d("cutVideo", "ffpmegString==>" + ffpmegString);
         String[] command = ffpmegString.split(" ");
 
@@ -147,22 +175,23 @@ public class CropVideoActivity extends AppCompatActivity {
 
                 @Override
                 public void onFinish() {
-                    Log.e("onFinish", "onFinish==>" + endTime);
-                }
-
-                @Override
-                public void onSuccess(final String message) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             endTime = System.currentTimeMillis();
+                            Log.e("onFinish", "onFinish==>" + endTime);
                             dissmissDialog();
-                            Log.e("onSuccess", "onSuccess ==>" + message);
                             cutPath = outPath;
                             tv_cutpath.setText("裁剪视频保存路径：" + outPath);
                             tv_cuttime.setText("裁剪视频时间：" + (endTime - startTime) * 1f / 1000 + "秒");
                         }
                     });
+                }
+
+                @Override
+                public void onSuccess(final String message) {
+                    Log.e("onSuccess", "onSuccess ==>" + message);
+
                 }
 
                 @Override

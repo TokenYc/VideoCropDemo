@@ -7,6 +7,7 @@
 
     <TextView
         android:id="@+id/tv_path"
+        android:text="原是视频地址："
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -14,27 +15,37 @@
     <TextView
         android:id="@+id/tv_cutpath"
         android:layout_width="match_parent"
+        android:text="裁剪后路径："
         android:layout_height="wrap_content" />
 
 
     <TextView
         android:id="@+id/tv_cuttime"
+        android:text="裁剪时间:"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <TextView
         android:id="@+id/tv_compresspath"
         android:layout_width="match_parent"
+        android:text="压缩后视频地址："
         android:layout_height="wrap_content" />
     <TextView
         android:id="@+id/tv_compresstime"
         android:layout_width="match_parent"
+        android:text="压缩时间："
         android:layout_height="wrap_content" />
     <Button
         android:id="@+id/btn_cut"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="开始裁剪" />
+
+    <Button
+        android:id="@+id/btn_bitrate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="裁剪后降低视频码率"/>
 
     <Button
         android:id="@+id/btn_compress"
