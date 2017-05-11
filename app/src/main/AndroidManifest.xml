@@ -29,6 +29,7 @@
         <activity android:name=".MediaMetadataRetrieverVideoViewActivity"/>
         <activity android:name=".EndProjectActivity"/>
         <activity android:name=".CropVideoActivity"/>
+        <activity android:name=".CropVideo2Activity"/>
     </application>
 
 </manifest>

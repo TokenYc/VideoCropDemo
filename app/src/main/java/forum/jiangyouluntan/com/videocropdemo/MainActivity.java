@@ -27,7 +27,7 @@ import forum.jiangyouluntan.com.videocropdemo.utils.VideoDecoder;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int REQUEST_CODE = 520;
 
-    private Button btn_chooseVideo, btn_FFmpegAndroidLibraryActivity, btn_androidffmpeglibrary, btn_FFmpegAndroidLibraryGetAllImageActivity, btn_MediaCodecActivity, btn_MediaMetadataRetrieverActivity, btn_FFmpegMediaMetadataRetrieverActivity, btn_MediaMetadataRetrieverVideoViewActivity, btn_End, btn_clearCache, btn_cropVideo;
+    private Button btn_chooseVideo, btn_FFmpegAndroidLibraryActivity, btn_androidffmpeglibrary, btn_FFmpegAndroidLibraryGetAllImageActivity, btn_MediaCodecActivity, btn_MediaMetadataRetrieverActivity, btn_FFmpegMediaMetadataRetrieverActivity, btn_MediaMetadataRetrieverVideoViewActivity, btn_End, btn_clearCache, btn_cropVideo,btn_cropVideo2;
 
     private boolean isgetPermission = false;
 
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_End = (Button) findViewById(R.id.btn_End);
         btn_clearCache = (Button) findViewById(R.id.btn_clearCache);
         btn_cropVideo = (Button) findViewById(R.id.btn_cropVideo);
-
+        btn_cropVideo2 = (Button) findViewById(R.id.btn_cropVideo2);
     }
 
     private void initListener() {
@@ -107,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_End.setOnClickListener(this);
         btn_clearCache.setOnClickListener(this);
         btn_cropVideo.setOnClickListener(this);
+        btn_cropVideo2.setOnClickListener(this);
     }
 
     @Override
@@ -183,7 +184,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 startActivity(new Intent(this, CropVideoActivity.class).putExtra("videp_path", "" + btn_chooseVideo.getText().toString()));
                 break;
-
+            case R.id.btn_cropVideo2:
+                if (isPathEmpty()) {
+                    return;
+                }
+                startActivity(new Intent(this, CropVideo2Activity.class).putExtra("videp_path", "" + btn_chooseVideo.getText().toString()));
+                break;
         }
     }
 

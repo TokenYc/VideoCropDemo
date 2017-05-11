@@ -300,7 +300,7 @@ public class FfmpegController {
     /**
      * ffmpeg -i input.flv -vf fps = 1 out％d.png
      */
-    public void getAllVideoImage(String file_path,String file_path2, ShellCallback sc) throws Exception {
+    public void getAllVideoImage(String file_path, String file_path2, ShellCallback sc) throws Exception {
         ArrayList<String> cmd = new ArrayList<String>();
         cmd.add(mFfmpegBin);
         cmd.add("-i");
@@ -494,6 +494,68 @@ public class FfmpegController {
 
 //        String out_path = "222" + System.currentTimeMillis() + ".mp4";
 //        cmd.add(out_path);
+        Log.d("cmd", "cmd:" + cmd);
+        execFFMPEG(cmd, sc);
+    }
+
+    /**
+     * 裁剪视频
+     *
+     * @param videoPath
+     * @param outPath
+     * @param sc
+     * @throws Exception
+     */
+    //  String ffpmegString = "-ss " + "00:00:10" + " -t " + "00:00:10" + " -i " + videp_path + " -vcodec copy" + " -acodec copy " + outPath;
+    public void cutVideo(String videoPath, String outPath, ShellCallback sc) throws Exception {
+        ArrayList<String> cmd = new ArrayList<String>();
+        cmd.add(mFfmpegBin);
+        cmd.add("-threads");//多线程的运算，充分利用多核cpu
+        cmd.add("2");
+        cmd.add("-ss");
+        cmd.add("00:00:10");
+        cmd.add("-t");
+        cmd.add("00:00:10");
+        cmd.add("-i");
+        cmd.add("" + videoPath);
+        cmd.add("-preset");
+        cmd.add("ultrafast");
+        cmd.add("-vcodec");
+        cmd.add("copy");
+        cmd.add("-acodec");
+        cmd.add("copy");
+        cmd.add(outPath);
+        Log.d("cmd", "cmd:" + cmd);
+        execFFMPEG(cmd, sc);
+    }
+
+    /**
+     * 压缩视频
+     *
+     * @param videoPath
+     * @param outPath
+     * @param sc
+     * @throws Exception
+     */
+    //String ffpmegString = "-threads 2" + " -i " + cutPath + " -vcodec libx264" + " -acodec aac" + " -preset ultrafast" + " -s 960x540" + " -crf 30 " + outPath;
+    public void compressVideo(String videoPath, String outPath, ShellCallback sc) throws Exception {
+        ArrayList<String> cmd = new ArrayList<String>();
+        cmd.add(mFfmpegBin);
+        cmd.add("-threads");//多线程的运算，充分利用多核cpu
+        cmd.add("4");
+        cmd.add("-i");
+        cmd.add("" + videoPath);
+        cmd.add("-preset");
+        cmd.add("ultrafast");
+        cmd.add("-vcodec");
+        cmd.add("libx264");
+        cmd.add("-acodec");
+        cmd.add("aac");
+        cmd.add("-s");
+        cmd.add("960x540");
+        cmd.add("-crf");
+        cmd.add("30");
+        cmd.add(outPath);
         Log.d("cmd", "cmd:" + cmd);
         execFFMPEG(cmd, sc);
     }
