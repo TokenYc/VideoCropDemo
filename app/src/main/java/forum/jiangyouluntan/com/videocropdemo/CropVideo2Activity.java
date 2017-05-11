@@ -27,7 +27,7 @@ import forum.jiangyouluntan.com.videocropdemo.utils.FileUtils;
 
 public class CropVideo2Activity extends AppCompatActivity {
     private TextView tv_path, tv_cutpath, tv_cuttime, tv_compresstime, tv_compresspath;
-    private Button btn_cut, btn_compress, btn_bitrate;
+    private Button btn_cut, btn_compress;
 
     private String videp_path;//视频路径
 

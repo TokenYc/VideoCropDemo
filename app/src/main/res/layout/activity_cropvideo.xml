@@ -41,11 +41,11 @@
         android:layout_height="wrap_content"
         android:text="开始裁剪" />
 
-    <Button
-        android:id="@+id/btn_bitrate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="裁剪后降低视频码率"/>
+    <!--<Button-->
+        <!--android:id="@+id/btn_bitrate"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="裁剪后降低视频码率"/>-->
 
     <Button
         android:id="@+id/btn_compress"
